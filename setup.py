@@ -5,6 +5,7 @@
 # @author: Antonio Sagliocco <antonio@midokura.com>, Midokura
 
 from setuptools import setup, find_packages
+import os
 
 SRC_DIR = "src"
 MODULE_NAME = "midonet_sandbox"
@@ -13,8 +14,21 @@ __version__ = 1.0
 with open('./requirements.txt') as reqs_txt:
     requirements = [line for line in reqs_txt]
 
+
+def assets():
+    assets_path = \
+        os.path.join(os.path.dirname(__file__), SRC_DIR, MODULE_NAME, 'assets')
+
+    assets_list = list()
+    for root, dirs, files in os.walk(assets_path):
+        for file in files:
+            assets_list.append(os.path.join(root, file).replace(
+                "{}/{}/".format(SRC_DIR, MODULE_NAME), ""))
+
+    return assets_list
+
 # with open('./test-requirements.txt') as test_reqs_txt:
-#     test_requirements = [line for line in test_reqs_txt]
+# test_requirements = [line for line in test_reqs_txt]
 
 setup(
     name=MODULE_NAME,
@@ -23,6 +37,7 @@ setup(
     url='https://github.com/midonet/midonet-sandbox',
     package_dir={"": SRC_DIR},
     packages=find_packages(SRC_DIR, exclude=["tests"]),
+    package_data={'': assets()},
     install_requires=requirements,
     # tests_require=test_requirements,
     zip_safe=False,
@@ -41,7 +56,7 @@ setup(
         'Topic :: Utilities',
         'License :: OSI Approved :: Apache Software License',
     ],
-     entry_points="""
+    entry_points="""
     [console_scripts]
     sandbox-manage=midonet_sandbox.cli.cli:main
     """,

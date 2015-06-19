@@ -37,4 +37,3 @@ def configure_logging(loglevel, logfile=None):
     logger.addHandler(handler)
 
     sys.stdout = LoggerWriter(logger, getattr(logging, loglevel))
-    sys.stderr = LoggerWriter(logger, logging.ERROR)
