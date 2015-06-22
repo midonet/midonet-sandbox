@@ -58,6 +58,6 @@ setup(
     ],
     entry_points="""
     [console_scripts]
-    sandbox-manage=midonet_sandbox.cli.cli:main
+    sandbox-manage=midonet_sandbox.logic.cli:main
     """,
 )

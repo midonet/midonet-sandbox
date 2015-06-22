@@ -1,0 +1,2 @@
+cli:
+  image: sandbox/midonet-cli

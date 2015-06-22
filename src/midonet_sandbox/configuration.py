@@ -6,6 +6,7 @@ import ConfigParser
 import logging
 
 from os.path import isfile
+from StringIO import StringIO
 from midonet_sandbox.utils import Singleton
 
 
@@ -35,15 +36,20 @@ class Config(object):
         self._config = ConfigParser.SafeConfigParser(defaults=DEFAULT_SETTINGS)
 
         if config_file and isfile(config_file):
-            log.info('Trying configuration file: {}'.format(config_file))
+            log.info('Loading configuration file: {}'.format(config_file))
             self._config.read(config_file)
         else:
             self._config.add_section('sandbox')
-            log.info(
-                'Cannot read configuration {}. Using default settings'.format(
-                    config_file))
+            if config_file and not isfile(config_file):
+                log.info('Cannot read {}'.format(config_file))
+            log.info('Using default settings')
 
-        log.debug('Settings: {}'.format(self._config))
+        log.debug('Settings: {}'.format(self.dump_config(self._config)))
 
     def get_default_value(self, param):
         return self._config.get('sandbox', param)
+
+    def dump_config(self, config):
+        dump = StringIO()
+        config.write(dump)
+        return dump.getvalue()

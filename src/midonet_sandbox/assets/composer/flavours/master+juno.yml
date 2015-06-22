@@ -1,0 +1,31 @@
+zookeeper:
+  extends:
+    file: zookeeper.yml
+    service: zookeeper
+
+cassandra:
+  extends:
+    file: cassandra.yml
+    service: cassandra
+
+midolman:
+  extends:
+    file: midolman.yml
+    service: midolman
+  links:
+  - "zookeeper:zk"
+  - "cassandra:cs"
+
+api:
+  extends:
+    file: api.yml
+    service: api
+  links:
+  - "zookeeper:zk"
+
+cli:
+  extends:
+    file: cli.yml
+    service: cli
+  links:
+  - "api:api"

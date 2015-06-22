@@ -4,9 +4,11 @@
 
 import argparse
 
+import os
 from midonet_sandbox.configuration import Config, DEFAULT_CONFIGURATION_FILE
-from midonet_sandbox.logging_core import configure_logging
-from midonet_sandbox.builder import Builder
+from midonet_sandbox.logic.builder import Builder
+from midonet_sandbox.logic.composer import Composer
+from midonet_sandbox.utils import configure_logging
 
 
 def cli():
@@ -26,6 +28,12 @@ def cli():
     parser.add_argument('-p', '--publish', action='store_true', dest='publish',
                         help='Publish the image upstream')
 
+    parser.add_argument('-r', '--run', action='store', dest='run',
+                        help='Run a specific flavour')
+
+    parser.add_argument('--list', action='store_true', dest='list',
+                        help='List flavours')
+
     return parser.parse_args()
 
 
@@ -40,9 +48,15 @@ def main():
         Config.Instance()
 
     if args.build:
+        image = args.build
         builder = Builder()
         if ':' in args.build:
-            image, tag = args.build.split(':')
-            builder.build(image, tag, args.publish)
+            builder.build(image, args.publish)
         else:
-            builder.build(args.build, publish=args.publish)
+            builder.build('{}:master'.format(image), publish=args.publish)
+
+    elif args.list:
+        composer = Composer()
+        print 'Available flavours: '
+        for flavour in composer.list_flavours():
+            print "* {}".format(os.path.splitext(flavour)[0])

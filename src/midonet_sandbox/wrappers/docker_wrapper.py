@@ -5,7 +5,6 @@
 import logging
 
 import os
-
 from docker import Client
 
 log = logging.getLogger('midonet-sandbox.docker')
@@ -16,10 +15,16 @@ class Docker(object):
         log.debug('DockerClient connecting to {}'.format(socket))
         self._client = Client(base_url=socket)
 
-    def build(self, dockerfile, tag):
-        log.info('Invoking docker build on {}'.format(dockerfile))
+    def build(self, dockerfile, image):
+        """/
+        :param dockerfile: The dockerfile full path
+        :param image: the image name (eg: midolman:1.9)
+        """
+        log.info('Now building {}'.format(image))
+        log.debug('Invoking docker build on {}'.format(dockerfile))
 
-        response = self._client.build(path=os.path.dirname(dockerfile), tag=tag,
+        response = self._client.build(path=os.path.dirname(dockerfile),
+                                      tag=image, pull=False, rm=True,
                                       dockerfile=os.path.basename(dockerfile))
 
         for line in response:

@@ -11,6 +11,9 @@ BASE_ASSETS_PATH = os.path.dirname(assets.__file__)
 
 
 class Assets(object):
+    """
+    """
+
     def get_image_path(self, image, tag):
         path = os.path.join(BASE_ASSETS_PATH, 'images', image, tag)
         if not os.path.isdir(path):
@@ -26,3 +29,7 @@ class Assets(object):
                 'Image file not found: {}'.format(abs_image_path))
 
         return abs_image_path
+
+    def get_composer_flavours(self):
+        path = os.path.join(BASE_ASSETS_PATH, 'composer', 'flavours')
+        return os.listdir(path)
