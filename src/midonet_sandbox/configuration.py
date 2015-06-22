@@ -4,9 +4,9 @@
 
 import ConfigParser
 import logging
+from StringIO import StringIO
 
 from os.path import isfile
-from StringIO import StringIO
 from midonet_sandbox.utils import Singleton
 
 
@@ -16,8 +16,6 @@ DEFAULT_SETTINGS = {
     'extra_components': None,
     'docker_socket': 'unix://var/run/docker.sock'
 }
-
-DEFAULT_CONFIGURATION_FILE = '~/.midonet-sandboxrc'
 
 
 @Singleton
@@ -32,15 +30,15 @@ class Config(object):
     """
 
 
-    def __init__(self, config_file=None):
+    def __init__(self, config_file):
         self._config = ConfigParser.SafeConfigParser(defaults=DEFAULT_SETTINGS)
 
-        if config_file and isfile(config_file):
+        if isfile(config_file):
             log.info('Loading configuration file: {}'.format(config_file))
             self._config.read(config_file)
         else:
             self._config.add_section('sandbox')
-            if config_file and not isfile(config_file):
+            if not isfile(config_file):
                 log.info('Cannot read {}'.format(config_file))
             log.info('Using default settings')
 

@@ -48,6 +48,6 @@ class Builder(object):
             dockerfile = self._assets.get_abs_image_dockerfile(name, tag)
             self._docker.build(dockerfile, 'sandbox/{}'.format(image))
         except ImageNotFound:
-             log.info('Image {} not found, build aborted'.format(image))
+             log.error('Image {} not found, build aborted'.format(image))
 
         # TODO - publication
