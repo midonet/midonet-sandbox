@@ -5,7 +5,7 @@
 
 import os
 from midonet_sandbox import assets
-from midonet_sandbox.exceptions import ImageNotFound
+from midonet_sandbox.exceptions import ImageNotFound, FlavourNotFound
 
 BASE_ASSETS_PATH = os.path.dirname(assets.__file__)
 
@@ -30,6 +30,24 @@ class Assets(object):
 
         return abs_image_path
 
-    def get_composer_flavours(self):
+    def list_flavours_files(self):
         path = os.path.join(BASE_ASSETS_PATH, 'composer', 'flavours')
         return os.listdir(path)
+
+    def list_flavours(self):
+        return [os.path.splitext(flavour)[0] for flavour in
+                self.list_flavours_files()]
+
+    def get_flavours_path(self):
+        return os.path.join(BASE_ASSETS_PATH, 'composer', 'flavours')
+
+    def get_abs_flavour_path(self, flavour):
+        if not flavour.endswith('.yml'):
+            flavour = '{}.yml'.format(flavour)
+
+        flavour_file = os.path.join(self.get_flavours_path(), flavour)
+
+        if not os.path.isfile(flavour_file):
+            raise FlavourNotFound('Flavour not found: {}'.format(flavour_file))
+
+        return flavour_file

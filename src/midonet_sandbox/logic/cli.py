@@ -5,7 +5,7 @@
 import logging
 
 from docopt import docopt
-from midonet_sandbox.assets.assets import BASE_ASSETS_PATH
+from midonet_sandbox.assets.assets import BASE_ASSETS_PATH, Assets
 from midonet_sandbox.configuration import Config
 from midonet_sandbox.logic.builder import Builder
 from midonet_sandbox.logic.composer import Composer
@@ -34,7 +34,7 @@ def main():
     options = docopt(cli)
 
     configure_logging(options['--log'])
-    Config.Instance(options['--config'])
+    Config.instance(options['--config'])
 
     log.debug('Base assets directory: {}'.format(BASE_ASSETS_PATH))
 
@@ -56,7 +56,7 @@ def build(options):
 
 def list(options):
     print 'Available flavours: '
-    for flavour in Composer().list_flavours():
+    for flavour in Assets().list_flavours():
         print "* {}".format(flavour)
 
 

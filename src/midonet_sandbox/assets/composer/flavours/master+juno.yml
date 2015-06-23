@@ -1,16 +1,16 @@
 zookeeper:
   extends:
-    file: zookeeper.yml
+    file: ../base/zookeeper.yml
     service: zookeeper
 
 cassandra:
   extends:
-    file: cassandra.yml
+    file: ../base/cassandra.yml
     service: cassandra
 
 midolman:
   extends:
-    file: midolman.yml
+    file: ../base/midolman.yml
     service: midolman
   links:
   - "zookeeper:zk"
@@ -18,14 +18,14 @@ midolman:
 
 api:
   extends:
-    file: api.yml
+    file: ../base/api.yml
     service: api
   links:
   - "zookeeper:zk"
 
 cli:
   extends:
-    file: cli.yml
+    file: ../base/cli.yml
     service: cli
   links:
   - "api:api"

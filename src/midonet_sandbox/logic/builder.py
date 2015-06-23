@@ -18,7 +18,7 @@ class Builder(object):
     """
 
     def __init__(self):
-        configuration = Config.Instance()
+        configuration = Config.instance()
         self._docker = Docker(configuration.get_default_value('docker_socket'))
         self._assets = Assets()
 

@@ -30,7 +30,7 @@ class Singleton:
     def __init__(self, decorated):
         self._decorated = decorated
 
-    def Instance(self, *args, **kwargs):
+    def instance(self, *args, **kwargs):
         """
         Returns the singleton instance. Upon its first call, it creates a
         new instance of the decorated class and calls its `__init__` method.
@@ -43,8 +43,19 @@ class Singleton:
             self._instance = self._decorated(*args, **kwargs)
             return self._instance
 
+    def instance_or_die(self):
+        """
+        Return the singleton instance or die if not yet initialized
+
+        :return: the singleton instance
+        :raises: AttributeError if the singleton is not yet created
+        """
+        return self._instance
+
+
     def __call__(self):
-        raise TypeError('Singletons must be accessed through `Instance()`.')
+        raise TypeError('Singletons must be accessed through `instance()` '
+                        'or `instance_or_die()`.')
 
 
 def configure_logging(loglevel, logfile=None):

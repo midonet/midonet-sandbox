@@ -8,3 +8,6 @@ class Sandbox(Exception):
 
 class ImageNotFound(Sandbox):
     pass
+
+class FlavourNotFound(Sandbox):
+    pass
