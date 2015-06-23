@@ -19,7 +19,7 @@ class Composer(object):
         self._assets = Assets()
         self._composer = DockerComposer()
 
-    def run(self, flavour):
+    def run(self, flavour, name):
         log.info('Spawning {} sandbox'.format(flavour))
 
         if flavour not in self._assets.list_flavours():
@@ -28,4 +28,5 @@ class Composer(object):
 
         flavour_file = self._assets.get_abs_flavour_path(flavour)
 
-        print self._composer.up(flavour_file)
+        composer = self._composer.up(flavour_file, name)
+        composer.wait()

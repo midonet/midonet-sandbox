@@ -17,15 +17,16 @@ class DockerComposer(object):
         self._config = Config.instance_or_die()
 
 
-    def up(self, yml_file):
+    def up(self, yml_file, name):
         """
         Spawn a composer job to orchestrate containers
         :param yml_file: the composer YML file full path
+        :param yml_file: the sandbox name
         :return: the process output
         """
         # set the DOCKER_HOST env var to point docker specified in the config
         env = os.environ.copy()
         env['DOCKER_HOST'] = self._config.get_default_value('docker_socket')
 
-        return subprocess.Popen(['docker-compose', '-f', yml_file, 'up'],
-                                stderr=subprocess.STDOUT, env=env)
+        return subprocess.Popen(['docker-compose', '-f', yml_file, '-p', name,
+                                 'up'], stderr=subprocess.STDOUT, env=env)

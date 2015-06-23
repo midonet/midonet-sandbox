@@ -8,8 +8,5 @@ ONBUILD RUN apt-get install -qqy midolman zkdump
 
 RUN apt-get update && apt-get install -qqy curl
 
-# Add init script
-ADD run_midolman.sh /opt/run_midolman.sh
-
-# Run midolman by default
-CMD /opt/run_midolman.sh
+ADD bin/run-midolman.sh /run-midolman.sh
+CMD ["/run-midolman.sh"]

@@ -2,30 +2,27 @@ zookeeper:
   extends:
     file: ../base/zookeeper.yml
     service: zookeeper
+  image: sandbox/zookeeper:master
 
-cassandra:
-  extends:
-    file: ../base/cassandra.yml
-    service: cassandra
-
-midolman:
-  extends:
-    file: ../base/midolman.yml
-    service: midolman
-  links:
-  - "zookeeper:zk"
-  - "cassandra:cs"
-
-api:
-  extends:
-    file: ../base/api.yml
-    service: api
-  links:
-  - "zookeeper:zk"
-
-cli:
-  extends:
-    file: ../base/cli.yml
-    service: cli
-  links:
-  - "api:api"
+#cassandra:
+#  extends:
+#    file: ../base/cassandra.yml
+#    service: cassandra
+#  image: sandbox/cassandra:master
+#
+#midolman:
+#  extends:
+#    file: ../base/midolman.yml
+#    service: midolman
+#  image: sandbox/midolman:master
+#  links:
+#  - "zookeeper:zk"
+#  - "cassandra:cs"
+#
+#api:
+#  extends:
+#    file: ../base/midonet-api.yml
+#    service: api
+#  image: sandbox/midonet-api:master
+#  links:
+#  - "zookeeper:zk"

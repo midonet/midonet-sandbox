@@ -28,4 +28,4 @@ class Docker(object):
                                       dockerfile=os.path.basename(dockerfile))
 
         for line in response:
-            log.info(line)
+            print eval(line)['stream'],

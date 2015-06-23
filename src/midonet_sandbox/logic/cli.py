@@ -12,12 +12,12 @@ from midonet_sandbox.logic.composer import Composer
 from midonet_sandbox.utils import configure_logging
 
 
-cli = """Sandbox Manage
+cli = """Midonet Sandbox Manager
 
 Usage:
-    sandbox-manage build <image> [options] [--publish]
-    sandbox-manage run <flavour> [options] [--override=<override>]
-    sandbox-manage list
+    sandbox-manage [options] build <image>... [--publish]
+    sandbox-manage [options] run <flavour> --name=<name> [--override=<override>]
+    sandbox-manage [options] flavours-list
 
 Options:
     -h --help                       show this screen
@@ -25,7 +25,7 @@ Options:
     -c <config>, --config=<config>  configuration file [default: ~/.midonet-sandboxrc]
 """
 
-_ACTIONS_ = ('build', 'list', 'run')
+_ACTIONS_ = ('build', 'run', 'flavours-list')
 
 log = logging.getLogger('midonet-sandbox.main')
 
@@ -40,25 +40,30 @@ def main():
 
     for action in _ACTIONS_:
         if options[action]:
+            action = action.replace('-', '_')
             globals()[action](options)
             break
 
 
 def build(options):
-    image = options['<image>']
+    images = options['<image>']
     publish = options['--publish']
 
-    if ':' not in image:
-        image = '{}:master'.format(image)
+    for image in images:
+        if ':' not in image:
+            image = '{}:master'.format(image)
 
-    Builder().build(image, publish)
+        Builder().build(image, publish)
 
 
-def list(options):
-    print 'Available flavours: '
+def flavours_list(options):
+    print '\n Available flavours: '
     for flavour in Assets().list_flavours():
         print "* {}".format(flavour)
 
 
 def run(options):
-    Composer().run(options['<flavour>'])
+    flavour = options['<flavour>']
+    name = options['--name']
+
+    Composer().run(flavour, name)
