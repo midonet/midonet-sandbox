@@ -29,3 +29,23 @@ class Docker(object):
 
         for line in response:
             print eval(line)['stream'],
+
+
+    def list_images(self, prefix=None):
+        """
+        List the available images
+        :param prefix: Filter the images by a prefix (eg: "sandbox/")
+        :return: the images list
+        """
+        images = self._client.images()
+
+        if prefix:
+            filtered = list()
+            for image in images:
+                for tag in image['RepoTags']:
+                    if tag.startswith(prefix):
+                        filtered.append(image)
+
+            images = filtered
+
+        return images
