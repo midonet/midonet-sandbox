@@ -1,8 +1,37 @@
-zookeeper:
+zookeeper1:
   extends:
     file: ../base/zookeeper.yml
     service: zookeeper
   image: sandbox/zookeeper:master
+  volumes:
+  - /zoo/conf/
+  environment:
+  - ZOO_ID=1
+
+zookeeper2:
+  extends:
+    file: ../base/zookeeper.yml
+    service: zookeeper
+  image: sandbox/zookeeper:master
+  environment:
+  - ZOO_ID=2
+  volumes_from:
+  - zookeeper1
+
+zookeeper3:
+  extends:
+    file: ../base/zookeeper.yml
+    service: zookeeper
+  image: sandbox/zookeeper:master
+  environment:
+  - ZOO_ID=3
+  volumes_from:
+  - zookeeper1
+  links:
+  - zookeeper1:zk1
+  - zookeeper2:zk2
+
+
 
 #cassandra:
 #  extends:

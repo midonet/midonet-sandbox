@@ -49,3 +49,31 @@ class Docker(object):
             images = filtered
 
         return images
+
+    def list_containers(self, prefix=None):
+        """
+        List the running containers, prefixed with prefix
+        :param prefix: The container's name prefix
+        :return: The list of containers
+        """
+        containers = self._client.containers()
+
+        filtered = list()
+        if prefix:
+            for container in containers:
+                if prefix in container['Names'][0]:
+                    filtered.append(container)
+
+            containers = filtered
+
+        return containers
+
+    def container_ip(self, container):
+        return self._client.inspect_container(container)['NetworkSettings'][
+            'IPAddress']
+
+    def stop_container(self, container):
+        self._client.stop(container)
+
+    def remove_container(self, container):
+        self._client.remove_container(container)

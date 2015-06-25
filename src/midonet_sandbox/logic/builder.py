@@ -18,7 +18,7 @@ class Builder(object):
     """
 
     def __init__(self):
-        configuration = Config.instance()
+        configuration = Config.instance_or_die()
         self._docker = Docker(configuration.get_default_value('docker_socket'))
         self._assets = Assets()
 
@@ -51,3 +51,5 @@ class Builder(object):
              log.error('Image {} not found, build aborted'.format(image))
 
         # TODO - publication
+
+

@@ -6,7 +6,6 @@ import logging
 from datetime import datetime
 
 import humanize
-
 from docopt import docopt
 from tabulate import tabulate
 from midonet_sandbox.assets.assets import BASE_ASSETS_PATH, Assets
@@ -22,8 +21,10 @@ cli = """Midonet Sandbox Manager
 Usage:
     sandbox-manage [options] build <image>... [--publish]
     sandbox-manage [options] run <flavour> --name=<name> [--override=<override>]
+    sandbox-manage [options] stop <name> [--remove]
     sandbox-manage [options] flavours-list
     sandbox-manage [options] images-list
+    sandbox-manage [options] sandbox-list [--details]
 
 Options:
     -h --help                       show this screen
@@ -31,7 +32,8 @@ Options:
     -c <config>, --config=<config>  configuration file [default: ~/.midonet-sandboxrc]
 """
 
-_ACTIONS_ = ('build', 'run', 'flavours-list', 'images-list')
+_ACTIONS_ = (
+    'build', 'run', 'stop', 'flavours-list', 'images-list', 'sandbox-list')
 
 log = logging.getLogger('midonet-sandbox.main')
 
@@ -66,7 +68,6 @@ def flavours_list(options):
     assets = list()
     for flavour in Assets().list_flavours():
         assets.append([flavour])
-    print '\n'
     print(tabulate(assets, headers=['Flavours'], tablefmt='psql'))
 
 
@@ -75,6 +76,13 @@ def run(options):
     name = options['--name']
 
     Composer().run(flavour, name)
+
+
+def stop(options):
+    name = options['<name>']
+    remove = options['--remove']
+
+    Composer().stop(name, remove)
 
 
 def images_list(options):
@@ -88,3 +96,26 @@ def images_list(options):
                            datetime.fromtimestamp(image['Created']))])
 
     print(tabulate(images, headers=['Image', 'Created'], tablefmt='psql'))
+
+
+def sandbox_list(options):
+    sandboxes = list()
+
+    for sandbox in Composer().list_running_sandbox():
+        if options['--details']:
+            for container in Composer().get_sandbox_detail(sandbox):
+                sandboxes.append(container)
+        else:
+            sandboxes.append([sandbox])
+
+    if options['--details']:
+        print(tabulate(sandboxes, headers=['Sandbox', 'Name', 'Image', 'Ports',
+                                           'Ip'], tablefmt='psql'))
+    else:
+        print(tabulate(sandboxes, headers=['Sandbox'], tablefmt='psql'))
+
+
+
+
+
+
