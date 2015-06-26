@@ -13,7 +13,7 @@ from midonet_sandbox.utils import Singleton
 log = logging.getLogger('midonet-sandbox.configuration')
 
 DEFAULT_SETTINGS = {
-    'extra_components': None,
+    'extra_flavours': None,
     'docker_socket': 'unix://var/run/docker.sock'
 }
 
@@ -24,7 +24,7 @@ class Config(object):
     Read and parse the configuration file. The configuration file format is:
     ---------------
     [sandbox]
-    extra_components = None
+    extra_flavours = None
     docker_socket = 'unix://var/run/docker.sock'
     -----------------
     """
@@ -44,7 +44,7 @@ class Config(object):
 
         log.debug('Settings: {}'.format(self.dump_config(self._config)))
 
-    def get_default_value(self, param):
+    def get_sandbox_value(self, param):
         return self._config.get('sandbox', param)
 
     def dump_config(self, config):

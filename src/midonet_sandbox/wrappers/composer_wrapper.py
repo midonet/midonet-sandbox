@@ -17,9 +17,8 @@ class DockerComposer(object):
         self._config = Config.instance_or_die()
         # set the DOCKER_HOST env var to point docker specified in the config
         self._env = os.environ.copy()
-        self._env['DOCKER_HOST'] = self._config.get_default_value(
+        self._env['DOCKER_HOST'] = self._config.get_sandbox_value(
             'docker_socket')
-
 
     def up(self, yml_file, name):
         """
@@ -35,4 +34,4 @@ class DockerComposer(object):
 
     def stop(self, name):
         return subprocess.Popen(['docker-compose', '-p', name, 'stop'],
-                         stderr=subprocess.STDOUT, env=self._env)
+                                stderr=subprocess.STDOUT, env=self._env)

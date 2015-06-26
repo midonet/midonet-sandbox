@@ -19,11 +19,11 @@ cli = """Midonet Sandbox Manager
 
 Usage:
     sandbox-manage [options] build <image>... [--publish]
-    sandbox-manage [options] run <flavour> --name=<name> [--override=<override>]
+    sandbox-manage [options] run <flavour> --name=<name> [--override=<override>] [--force]
     sandbox-manage [options] stop <name> [--remove]
     sandbox-manage [options] flavours-list [--details]
     sandbox-manage [options] images-list
-    sandbox-manage [options] sandbox-list [--details]
+    sandbox-manage [options] sandbox-list [--details] [--name=<name>]
 
 Options:
     -h --help                       show this screen
@@ -85,9 +85,10 @@ def flavours_list(options):
 def run(options):
     flavour = options['<flavour>']
     name = options['--name']
+    force = options['--force']
 
-    Composer().run(flavour, name)
-    sandbox_list({'--details':True})
+    Composer().run(flavour, name, force)
+    print_sandbox_details([name])
 
 
 def stop(options):
@@ -98,7 +99,7 @@ def stop(options):
 
 
 def images_list(options):
-    docker = Docker(Config.instance_or_die().get_default_value('docker_socket'))
+    docker = Docker(Config.instance_or_die().get_sandbox_value('docker_socket'))
     images = list()
 
     for image in docker.list_images('sandbox/'):
@@ -111,19 +112,32 @@ def images_list(options):
 
 
 def sandbox_list(options):
+    composer = Composer()
     details = options['--details']
-
+    name = options['--name']
     sandboxes = list()
-    for sandbox in Composer().list_running_sandbox():
-        if details:
-            for container in Composer().get_sandbox_detail(sandbox):
-                sandboxes.append(container)
-        else:
-            sandboxes.append([sandbox])
 
-    headers = ['Sandbox']
+    if not name:
+        running_sandboxes = composer.list_running_sandbox()
+    else:
+        running_sandboxes = [sandbox for sandbox in composer.list_running_sandbox() if sandbox == name]
+
     if details:
-        headers = ['Sandbox', 'Name', 'Image', 'Ports', 'Ip']
+        print_sandbox_details(running_sandboxes)
+        return
 
-    print(tabulate(sandboxes, headers=headers, tablefmt='psql'))
+    for sandbox in running_sandboxes:
+        sandboxes.append([sandbox])
 
+    print(tabulate(sandboxes, headers=['Sandbox'], tablefmt='psql'))
+
+
+def print_sandbox_details(sandboxes):
+    sandbox_list = list()
+
+    for sandbox in sandboxes:
+        for container in Composer().get_sandbox_detail(sandbox):
+            sandbox_list.append(container)
+
+    headers = ['Sandbox', 'Name', 'Image', 'Ports', 'Ip']
+    print(tabulate(sandbox_list, headers=headers, tablefmt='psql'))

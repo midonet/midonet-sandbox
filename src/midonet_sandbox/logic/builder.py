@@ -19,7 +19,7 @@ class Builder(object):
 
     def __init__(self):
         configuration = Config.instance_or_die()
-        self._docker = Docker(configuration.get_default_value('docker_socket'))
+        self._docker = Docker(configuration.get_sandbox_value('docker_socket'))
         self._assets = Assets()
 
     def build(self, image, publish=False):
@@ -48,8 +48,6 @@ class Builder(object):
             dockerfile = self._assets.get_abs_image_dockerfile(name, tag)
             self._docker.build(dockerfile, 'sandbox/{}'.format(image))
         except ImageNotFound:
-             log.error('Image {} not found, build aborted'.format(image))
+            log.error('Image {} not found, build aborted'.format(image))
 
-        # TODO - publication
-
-
+            # TODO - publication

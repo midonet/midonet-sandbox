@@ -30,7 +30,6 @@ class Docker(object):
         for line in response:
             print eval(line)['stream'],
 
-
     def list_images(self, prefix=None):
         """
         List the available images

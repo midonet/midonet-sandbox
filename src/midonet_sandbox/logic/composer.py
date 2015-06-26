@@ -21,10 +21,10 @@ class Composer(object):
     def __init__(self):
         configuration = Config.instance_or_die()
         self._assets = Assets()
-        self._docker = Docker(configuration.get_default_value('docker_socket'))
+        self._docker = Docker(configuration.get_sandbox_value('docker_socket'))
         self._composer = DockerComposer()
 
-    def run(self, flavour, name):
+    def run(self, flavour, name, force):
         log.info('Spawning {} sandbox'.format(flavour))
 
         if flavour not in self._assets.list_flavours():
@@ -33,9 +33,15 @@ class Composer(object):
 
         flavour_file = self._assets.get_abs_flavour_path(flavour)
 
-        composer = self._composer.up(flavour_file,
-                                     '{}{}'.format(self.SANDBOX_PREFIX, name))
-        composer.wait()
+        if not force:
+            running_sandboxes = self.list_running_sandbox()
+            if name in running_sandboxes:
+                restart = raw_input("\nSandbox {} is already up. Restart? (Y/N): ".format(name))
+
+        if force or restart.lower() == 'y':
+            composer = self._composer.up(flavour_file,
+                                         '{}{}'.format(self.SANDBOX_PREFIX, name))
+            composer.wait()
 
     @staticmethod
     def __get_sandbox_name(container_name):
@@ -84,12 +90,12 @@ class Composer(object):
         ports_list = list()
         for port in ports:
             if 'PublicPort' in port:
-                ports_list.append('{}/{}->{}:{}'.format(port['Type'], port['PrivatePort'], port['IP'], port['PublicPort']))
+                ports_list.append(
+                    '{}/{}->{}:{}'.format(port['Type'], port['PrivatePort'], port['IP'], port['PublicPort']))
             else:
                 ports_list.append('{}/{}'.format(port['Type'], port['PrivatePort']))
 
         return ','.join(sorted(ports_list))
-
 
     def get_sandbox_detail(self, sandbox):
         """
