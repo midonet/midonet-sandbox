@@ -81,9 +81,15 @@ class Composer(object):
 
     @staticmethod
     def __format_ports(ports):
-        return ','.join(sorted(
-            ['{}/{}'.format(port['Type'], port['PrivatePort']) for port in
-             ports]))
+        ports_list = list()
+        for port in ports:
+            if 'PublicPort' in port:
+                ports_list.append('{}/{}->{}:{}'.format(port['Type'], port['PrivatePort'], port['IP'], port['PublicPort']))
+            else:
+                ports_list.append('{}/{}'.format(port['Type'], port['PrivatePort']))
+
+        return ','.join(sorted(ports_list))
+
 
     def get_sandbox_detail(self, sandbox):
         """
@@ -96,7 +102,7 @@ class Composer(object):
         for container in self._docker.list_containers(
                 '{}{}'.format(self.SANDBOX_PREFIX, sandbox)):
             ip = self._docker.container_ip(container)
-            name = container['Names'][0].replace('/','')
+            name = container['Names'][0].replace('/', '')
             image = container['Image']
             ports = self.__format_ports(container['Ports'])
 

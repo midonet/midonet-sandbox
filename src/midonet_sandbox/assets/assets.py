@@ -51,3 +51,10 @@ class Assets(object):
             raise FlavourNotFound('Flavour not found: {}'.format(flavour_file))
 
         return flavour_file
+
+    def get_components_by_flavour(self, flavour):
+
+        flavour_path = self.get_abs_flavour_path(flavour)
+
+        # TODO: Complete
+        return 'cassandra'

@@ -15,14 +15,13 @@ from midonet_sandbox.logic.composer import Composer
 from midonet_sandbox.utils import configure_logging
 from midonet_sandbox.wrappers.docker_wrapper import Docker
 
-
 cli = """Midonet Sandbox Manager
 
 Usage:
     sandbox-manage [options] build <image>... [--publish]
     sandbox-manage [options] run <flavour> --name=<name> [--override=<override>]
     sandbox-manage [options] stop <name> [--remove]
-    sandbox-manage [options] flavours-list
+    sandbox-manage [options] flavours-list [--details]
     sandbox-manage [options] images-list
     sandbox-manage [options] sandbox-list [--details]
 
@@ -65,10 +64,22 @@ def build(options):
 
 
 def flavours_list(options):
-    assets = list()
-    for flavour in Assets().list_flavours():
-        assets.append([flavour])
-    print(tabulate(assets, headers=['Flavours'], tablefmt='psql'))
+    assets = Assets()
+    details = options['--details']
+
+    flavours = list()
+    for flavour in assets.list_flavours():
+        if details:
+            components = assets.get_components_by_flavour(flavour)
+            flavours.append([flavour, components])
+        else:
+            flavours.append([flavour])
+
+    headers = ['Flavours']
+    if details:
+        headers = ['Flavours', 'Components']
+
+    print(tabulate(flavours, headers=headers, tablefmt='psql'))
 
 
 def run(options):
@@ -76,6 +87,7 @@ def run(options):
     name = options['--name']
 
     Composer().run(flavour, name)
+    sandbox_list({'--details':True})
 
 
 def stop(options):
@@ -99,23 +111,19 @@ def images_list(options):
 
 
 def sandbox_list(options):
-    sandboxes = list()
+    details = options['--details']
 
+    sandboxes = list()
     for sandbox in Composer().list_running_sandbox():
-        if options['--details']:
+        if details:
             for container in Composer().get_sandbox_detail(sandbox):
                 sandboxes.append(container)
         else:
             sandboxes.append([sandbox])
 
-    if options['--details']:
-        print(tabulate(sandboxes, headers=['Sandbox', 'Name', 'Image', 'Ports',
-                                           'Ip'], tablefmt='psql'))
-    else:
-        print(tabulate(sandboxes, headers=['Sandbox'], tablefmt='psql'))
+    headers = ['Sandbox']
+    if details:
+        headers = ['Sandbox', 'Name', 'Image', 'Ports', 'Ip']
 
-
-
-
-
+    print(tabulate(sandboxes, headers=headers, tablefmt='psql'))
 
