@@ -1,6 +1,6 @@
 zookeeper1:
   extends:
-    file: ../base/zookeeper.yml
+    file: $BASE/zookeeper.yml
     service: zookeeper
   image: sandbox/zookeeper:master
   volumes:
@@ -10,7 +10,7 @@ zookeeper1:
 
 zookeeper2:
   extends:
-    file: ../base/zookeeper.yml
+    file: $BASE/zookeeper.yml
     service: zookeeper
   image: sandbox/zookeeper:master
   environment:
@@ -20,7 +20,7 @@ zookeeper2:
 
 zookeeper3:
   extends:
-    file: ../base/zookeeper.yml
+    file: $BASE/zookeeper.yml
     service: zookeeper
   image: sandbox/zookeeper:master
   environment:

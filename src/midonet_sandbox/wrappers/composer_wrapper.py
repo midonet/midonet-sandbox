@@ -33,11 +33,12 @@ class DockerComposer(object):
         :return: the process output
         """
 
-        if override:
-            yml_file = self._apply_override(yml_file, override)
+        final_yml = self._apply_substitutions(yml_file)
 
-        print yml_file
-        return subprocess.Popen(['docker-compose', '-f', yml_file, '-p', name,
+        if override:
+            final_yml = self._apply_override(yml_file, override)
+
+        return subprocess.Popen(['docker-compose', '-f', final_yml, '-p', name,
                                  'up', '-d'], stderr=subprocess.STDOUT,
                                 env=self._env)
 
@@ -46,8 +47,35 @@ class DockerComposer(object):
                                 stderr=subprocess.STDOUT, env=self._env)
 
 
-    def _apply_override(self, yml_file, override):
+    def _apply_substitutions(self, yml_file):
+        """
+        Apply variables substitution in the yml file
+        :param yml_file: the original yml file
+        :return: the modified yml file
+        """
+        base_composer_path = self._assets.get_abs_base_components_path()
+        temp_yml = tempfile.NamedTemporaryFile(suffix='.yml', delete=False)
 
+        vars = {
+            '$BASE': base_composer_path
+        }
+
+        with open(yml_file, 'rb') as _f_yml:
+            content = _f_yml.read()
+
+            for var, value in vars.items():
+                content = content.replace(var, value)
+
+        temp_yml.write(content)
+        return temp_yml.name
+
+    def _apply_override(self, yml_file, override):
+        """
+        Apply the override patch to the yml file and return a new yml file
+        :param yml_file: the original flavour description
+        :param override: the override path
+        :return: the new overridden yml file
+        """
         components = os.listdir(override)
 
         with open(yml_file, 'rb') as _f_yml:

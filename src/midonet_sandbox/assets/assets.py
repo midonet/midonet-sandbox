@@ -52,9 +52,11 @@ class Assets(object):
         if extra_path:
             if os.path.isdir(extra_path):
                 flavours.extend(
-                    [yml for yml in os.listdir(extra_path) if yml.endswith('.yml')])
+                    [yml for yml in os.listdir(extra_path) if
+                     yml.endswith('.yml')])
             else:
-                log.warning('Ignoring {}. Not a valid directory'.format(extra_path))
+                log.warning(
+                    'Ignoring {}. Not a valid directory'.format(extra_path))
 
         return set(flavours)
 
