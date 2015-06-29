@@ -3,8 +3,10 @@
 # @author: Antonio Sagliocco <antonio@midokura.com>, Midokura
 
 import logging
+from collections import Counter
 
 import os
+from yaml import load
 from midonet_sandbox.assets.assets import Assets
 from midonet_sandbox.wrappers.composer_wrapper import DockerComposer
 from midonet_sandbox.wrappers.docker_wrapper import Docker
@@ -136,3 +138,38 @@ class Composer(object):
             containers.append([sandbox, name, image, ports, ip])
 
         return containers
+
+    def get_components_by_flavour(self, flavour):
+        """
+        """
+        flavour_path = self._assets.get_abs_flavour_path(flavour)
+        components = list()
+        with open(flavour_path, 'rb') as _f_yml:
+            yml_content = load(_f_yml)
+            for component, definition in yml_content.items():
+                if 'image' in [c.lower() for c in definition]:
+                    components.append(definition['image'])
+                else:
+
+                    file = definition['extends']['file']
+                    for var, value in self._composer.VARS.items():
+                        file = file.replace(var, value)
+                    service = definition['extends']['service']
+                    image = self._get_base_component_image(file, service)
+                    if image:
+                        components.append(image)
+
+        return ', '.join(['{}x {}'.format(component, repeat)
+                          for repeat, component in Counter(components).items()])
+
+
+    def _get_base_component_image(self, file, service):
+        """
+        """
+        with open(file, 'rb') as _f_yml:
+            component_content = load(_f_yml)
+            for component, definition in component_content.items():
+                if component == service:
+                    return definition['image']
+
+        return None

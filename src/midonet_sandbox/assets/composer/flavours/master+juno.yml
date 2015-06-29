@@ -31,8 +31,6 @@ zookeeper3:
   - zookeeper1:zk1
   - zookeeper2:zk2
 
-
-
 #cassandra:
 #  extends:
 #    file: ../base/cassandra.yml

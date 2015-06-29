@@ -16,6 +16,11 @@ class DockerComposer(object):
     Wrapper around the docker-composer CLI
     """
 
+    VARS = {
+        '$BASE': Assets.get_abs_base_components_path()
+    }
+
+
     def __init__(self):
         self._config = Config.instance_or_die()
         self._assets = Assets()
@@ -53,17 +58,12 @@ class DockerComposer(object):
         :param yml_file: the original yml file
         :return: the modified yml file
         """
-        base_composer_path = self._assets.get_abs_base_components_path()
         temp_yml = tempfile.NamedTemporaryFile(suffix='.yml', delete=False)
-
-        vars = {
-            '$BASE': base_composer_path
-        }
 
         with open(yml_file, 'rb') as _f_yml:
             content = _f_yml.read()
 
-            for var, value in vars.items():
+            for var, value in self.VARS.items():
                 content = content.replace(var, value)
 
         temp_yml.write(content)
@@ -99,7 +99,7 @@ class DockerComposer(object):
                 base_file = os.path.split(definition['extends']['file'])[-1]
 
                 definition['extends']['file'] = \
-                    os.path.join(self._assets.get_abs_base_components_path(),
+                    os.path.join(Assets.get_abs_base_components_path(),
                                  base_file)
 
         temp_yml = tempfile.NamedTemporaryFile(suffix='.yml', delete=False)

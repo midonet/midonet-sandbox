@@ -28,7 +28,8 @@ class Assets(object):
             raise ImageNotFound('Image path does not exist: {}'.format(path))
         return path
 
-    def get_abs_base_components_path(self):
+    @staticmethod
+    def get_abs_base_components_path():
         return os.path.join(BASE_ASSETS_PATH, 'composer', 'base')
 
     def get_abs_image_dockerfile(self, image, tag):
@@ -89,10 +90,3 @@ class Assets(object):
             raise FlavourNotFound('Flavour not found: {}'.format(flavour_file))
 
         return flavour_file
-
-    def get_components_by_flavour(self, flavour):
-
-        flavour_path = self.get_abs_flavour_path(flavour)
-
-        # TODO: Complete
-        return 'cassandra'

@@ -72,7 +72,7 @@ def flavours_list(options):
     flavours = list()
     for flavour in assets.list_flavours():
         if details:
-            components = assets.get_components_by_flavour(flavour)
+            components = Composer().get_components_by_flavour(flavour)
             flavours.append([flavour, components])
         else:
             flavours.append([flavour])
