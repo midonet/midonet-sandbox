@@ -15,6 +15,7 @@ from midonet_sandbox.logic.composer import Composer
 from midonet_sandbox.utils import configure_logging
 from midonet_sandbox.wrappers.docker_wrapper import Docker
 
+
 cli = """Midonet Sandbox Manager
 
 Usage:
@@ -86,8 +87,9 @@ def run(options):
     flavour = options['<flavour>']
     name = options['--name']
     force = options['--force']
+    override = options['--override']
 
-    Composer().run(flavour, name, force)
+    Composer().run(flavour, name, force, override)
     print_sandbox_details([name])
 
 
@@ -120,7 +122,8 @@ def sandbox_list(options):
     if not name:
         running_sandboxes = composer.list_running_sandbox()
     else:
-        running_sandboxes = [sandbox for sandbox in composer.list_running_sandbox() if sandbox == name]
+        running_sandboxes = [sandbox for sandbox in
+                             composer.list_running_sandbox() if sandbox == name]
 
     if details:
         print_sandbox_details(running_sandboxes)

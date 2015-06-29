@@ -3,10 +3,12 @@
 # @author: Antonio Sagliocco <antonio@midokura.com>, Midokura
 
 import logging
+
 import os
 from midonet_sandbox import assets
 from midonet_sandbox.configuration import Config
 from midonet_sandbox.exceptions import ImageNotFound, FlavourNotFound
+
 
 BASE_ASSETS_PATH = os.path.dirname(assets.__file__)
 
@@ -26,6 +28,9 @@ class Assets(object):
             raise ImageNotFound('Image path does not exist: {}'.format(path))
         return path
 
+    def get_abs_base_components_path(self):
+        return os.path.join(BASE_ASSETS_PATH, 'composer', 'base')
+
     def get_abs_image_dockerfile(self, image, tag):
         abs_image_path = os.path.join(self.get_image_path(image, tag),
                                       '{}-{}.dockerfile'.format(image, tag))
@@ -40,13 +45,16 @@ class Assets(object):
         flavours = list()
 
         package_path = os.path.join(BASE_ASSETS_PATH, 'composer', 'flavours')
-        flavours.extend([yml for yml in os.listdir(package_path) if yml.lower().endswith('.yml')])
+        flavours.extend([yml for yml in os.listdir(package_path) if
+                         yml.lower().endswith('.yml')])
 
         extra_path = self._config.get_sandbox_value('extra_flavours')
-        if os.path.isdir(extra_path):
-            flavours.extend([yml for yml in os.listdir(extra_path) if yml.endswith('.yml')])
-        else:
-            log.warning('Ignoring {}. Not a valid directory'.format(extra_path))
+        if extra_path:
+            if os.path.isdir(extra_path):
+                flavours.extend(
+                    [yml for yml in os.listdir(extra_path) if yml.endswith('.yml')])
+            else:
+                log.warning('Ignoring {}. Not a valid directory'.format(extra_path))
 
         return set(flavours)
 
@@ -56,11 +64,12 @@ class Assets(object):
 
     def get_flavours_paths(self):
         extra_flavours = self._config.get_sandbox_value('extra_flavours')
-
         flavour_paths = [os.path.join(BASE_ASSETS_PATH, 'composer', 'flavours')]
-        if os.path.isdir(extra_flavours):
+
+        if extra_flavours and os.path.isdir(extra_flavours):
             flavour_paths = [extra_flavours,
-                             os.path.join(BASE_ASSETS_PATH, 'composer', 'flavours')]
+                             os.path.join(BASE_ASSETS_PATH, 'composer',
+                                          'flavours')]
 
         return flavour_paths
 

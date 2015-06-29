@@ -56,7 +56,6 @@ class Docker(object):
         :return: The list of containers
         """
         containers = self._client.containers()
-
         filtered = list()
         if prefix:
             for container in containers:
