@@ -34,7 +34,11 @@ class Composer(object):
     @exception_safe(ConnectionError, None)
     def run(self, flavour, name, force, override):
 
-        log.info('Spawning {} sandbox'.format(flavour))
+        message = 'Spawning {} sandbox'.format(flavour)
+        if override:
+            message += ' with override {}'.format(override)
+
+        log.info(message)
 
         if flavour not in self._assets.list_flavours():
             log.error('Cannot find flavour {}. Aborted'.format(flavour))

@@ -2,6 +2,7 @@
 #
 # @author: Antonio Sagliocco <antonio@midokura.com>, Midokura
 
+import logging
 import subprocess
 import tempfile
 
@@ -10,6 +11,7 @@ from yaml import load, dump
 from midonet_sandbox.configuration import Config
 from midonet_sandbox.assets.assets import Assets
 
+log = logging.getLogger('midonet-sandbox.dockercomposer')
 
 class DockerComposer(object):
     """
@@ -19,7 +21,6 @@ class DockerComposer(object):
     VARS = {
         '$BASE': Assets.get_abs_base_components_path()
     }
-
 
     def __init__(self):
         self._config = Config.instance_or_die()
@@ -41,16 +42,20 @@ class DockerComposer(object):
         final_yml = self._apply_substitutions(yml_file)
 
         if override:
-            final_yml = self._apply_override(yml_file, override)
+            final_yml = self._apply_override(final_yml, override)
 
-        return subprocess.Popen(['docker-compose', '-f', final_yml, '-p', name,
-                                 'up', '-d'], stderr=subprocess.STDOUT,
+        command = ['docker-compose', '-f', final_yml, '-p', name, 'up', '-d']
+        log.debug('Running external process: {}'.format(' '.join(command)))
+
+        return subprocess.Popen(command, stderr=subprocess.STDOUT,
                                 env=self._env)
 
     def stop(self, name):
-        return subprocess.Popen(['docker-compose', '-p', name, 'stop'],
-                                stderr=subprocess.STDOUT, env=self._env)
+        command = ['docker-compose', '-p', name, 'stop']
+        log.debug('Running external process: {}'.format(' '.join(command)))
 
+        return subprocess.Popen(command,
+                                stderr=subprocess.STDOUT, env=self._env)
 
     def _apply_substitutions(self, yml_file):
         """
@@ -95,15 +100,9 @@ class DockerComposer(object):
                     else:
                         definition['volumes'] = [volume]
 
-                # replace the base file with the abs_path
-                base_file = os.path.split(definition['extends']['file'])[-1]
-
-                definition['extends']['file'] = \
-                    os.path.join(Assets.get_abs_base_components_path(),
-                                 base_file)
+                    definition['command'] = '/override/override.sh'
 
         temp_yml = tempfile.NamedTemporaryFile(suffix='.yml', delete=False)
 
         dump(yml_content, temp_yml)
         return temp_yml.name
-
