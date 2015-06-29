@@ -79,6 +79,6 @@ def configure_logging(loglevel, logfile=None):
     else:
         handler = StreamHandler()
     handler.setFormatter(
-        logging.Formatter('[%(asctime)s] p%(process)s {%(filename)s:%(lineno)d}'
-                          ' %(levelname)s - %(message)s', '%m-%d %H:%M:%S'))
+        logging.Formatter('[%(asctime)s] %(levelname)s - %(message)s',
+                          '%m-%d %H:%M:%S'))
     logger.addHandler(handler)

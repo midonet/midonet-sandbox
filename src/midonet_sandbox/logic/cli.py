@@ -21,7 +21,8 @@ cli = """Midonet Sandbox Manager
 Usage:
     sandbox-manage [options] build <image>... [--publish]
     sandbox-manage [options] run <flavour> --name=<name> [--override=<override>] [--force]
-    sandbox-manage [options] stop <name> [--remove]
+    sandbox-manage [options] stop <name>... [--remove]
+    sandbox-manage [options] stop-all [--remove]
     sandbox-manage [options] flavours-list [--details]
     sandbox-manage [options] images-list
     sandbox-manage [options] sandbox-list [--details] [--name=<name>]
@@ -33,7 +34,7 @@ Options:
 """
 
 _ACTIONS_ = (
-    'build', 'run', 'stop', 'flavours-list', 'images-list', 'sandbox-list')
+    'build', 'run', 'stop', 'stop-all', 'flavours-list', 'images-list', 'sandbox-list')
 
 log = logging.getLogger('midonet-sandbox.main')
 
@@ -94,10 +95,17 @@ def run(options):
 
 
 def stop(options):
-    name = options['<name>']
+    names = options['<name>']
     remove = options['--remove']
 
-    Composer().stop(name, remove)
+    Composer().stop(names, remove)
+
+
+def stop_all(options):
+    remove = options['--remove']
+    composer = Composer()
+
+    composer.stop(composer.list_running_sandbox(), remove)
 
 
 def images_list(options):

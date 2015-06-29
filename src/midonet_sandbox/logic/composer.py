@@ -74,26 +74,35 @@ class Composer(object):
 
         return sandoxes
 
-    def stop(self, sandbox, remove=False):
+    def stop(self, sandboxes, remove=False):
         """
         Stop the running sandbox
 
         :param sandbox:
         :return:
         """
-        containers = self._docker.list_containers(
-            '{}{}_'.format(self.SANDBOX_PREFIX, sandbox))
 
-        for container in containers:
-            service_name = self.__get_service_name(container['Names'][0])
-            log.info('Sandbox {} - Stopping container {}'.format(sandbox,
-                                                                 service_name))
-            self._docker.stop_container(container)
-            if remove:
-                log.info('Sandbox {} - Removing '
-                         'container {}'.format(sandbox, service_name))
+        running_sandboxes = self.list_running_sandbox()
 
-                self._docker.remove_container(container)
+        for sandbox in sandboxes:
+            if sandbox not in running_sandboxes:
+                log.info('Sandbox {} not running. Skipping'.format(sandbox))
+                continue
+
+            containers = self._docker.list_containers(
+                '{}{}_'.format(self.SANDBOX_PREFIX, sandbox))
+
+            for container in containers:
+                service_name = self.__get_service_name(container['Names'][0])
+                log.info('Sandbox {} - Stopping container {}'.format(sandbox,
+                                                                     service_name))
+                self._docker.stop_container(container)
+                if remove:
+                    log.info('Sandbox {} - Removing '
+                             'container {}'.format(sandbox, service_name))
+
+                    self._docker.remove_container(container)
+
 
     @staticmethod
     def __format_ports(ports):
