@@ -52,7 +52,6 @@ class Singleton:
         """
         return self._instance
 
-
     def __call__(self):
         raise TypeError('Singletons must be accessed through `instance()` '
                         'or `instance_or_die()`.')
@@ -79,6 +78,7 @@ def exception_safe(exception, return_value):
     """
     Catch the exception, log it and return a value
     """
+
     def decorator(func):
         def wrapper(*args, **kwds):
             try:
@@ -86,5 +86,7 @@ def exception_safe(exception, return_value):
             except exception, e:
                 logger.error('A {} occured: {}'.format(exception, e))
                 return return_value
+
         return wrapper
+
     return decorator

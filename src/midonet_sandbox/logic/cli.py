@@ -90,11 +90,12 @@ def flavours_list(options):
         else:
             flavours.append([flavour])
 
-    headers = ['Flavours']
-    if details:
-        headers = ['Flavours', 'Components']
+    if flavours:
+        headers = ['Flavours']
+        if details:
+            headers = ['Flavours', 'Components']
 
-    print(tabulate(flavours, headers=headers, tablefmt='psql'))
+        print(tabulate(flavours, headers=headers, tablefmt='psql'))
 
 
 def run(options):
