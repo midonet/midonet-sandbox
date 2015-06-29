@@ -29,7 +29,7 @@ Usage:
 
 Options:
     -h --help                       show this screen
-    -l <level>, --log=<level>       verbose mode [default: INFO]
+    --debug                         debug mode
     -c <config>, --config=<config>  configuration file [default: ~/.midonet-sandboxrc]
 """
 
@@ -43,7 +43,11 @@ log = logging.getLogger('midonet-sandbox.main')
 def main():
     options = docopt(cli)
 
-    configure_logging(options['--log'])
+    if options['--debug']:
+        configure_logging('debug')
+    else:
+        configure_logging('info')
+
     Config.instance(options['--config'])
 
     log.debug('Base assets directory: {}'.format(BASE_ASSETS_PATH))
@@ -99,8 +103,8 @@ def run(options):
     force = options['--force']
     override = options['--override']
 
-    Composer().run(flavour, name, force, override)
-    print_sandbox_details([name])
+    if Composer().run(flavour, name, force, override):
+        print_sandbox_details([name])
 
 
 def stop(options):
@@ -127,7 +131,8 @@ def images_list(options):
                            datetime.now() -
                            datetime.fromtimestamp(image['Created']))])
 
-    print(tabulate(images, headers=['Image', 'Created'], tablefmt='psql'))
+    if images:
+       print(tabulate(images, headers=['Image', 'Created'], tablefmt='psql'))
 
 
 def sandbox_list(options):
@@ -149,7 +154,8 @@ def sandbox_list(options):
     for sandbox in running_sandboxes:
         sandboxes.append([sandbox])
 
-    print(tabulate(sandboxes, headers=['Sandbox'], tablefmt='psql'))
+    if sandboxes:
+        print(tabulate(sandboxes, headers=['Sandbox'], tablefmt='psql'))
 
 
 def print_sandbox_details(sandboxes):
@@ -159,5 +165,6 @@ def print_sandbox_details(sandboxes):
         for container in Composer().get_sandbox_detail(sandbox):
             sandbox_list.append(container)
 
-    headers = ['Sandbox', 'Name', 'Image', 'Ports', 'Ip']
-    print(tabulate(sandbox_list, headers=headers, tablefmt='psql'))
+    if sandbox_list:
+        headers = ['Sandbox', 'Name', 'Image', 'Ports', 'Ip']
+        print(tabulate(sandbox_list, headers=headers, tablefmt='psql'))

@@ -59,15 +59,6 @@ class Singleton:
 
 
 def configure_logging(loglevel, logfile=None):
-    class LoggerWriter:
-        def __init__(self, logger, level):
-            self.logger = logger
-            self.level = level
-
-        def write(self, message):
-            for line in message.rstrip().splitlines():
-                self.logger.log(self.level, line.rstrip())
-
     loglevel = loglevel.upper()
     loglevels = ('DEBUG', 'INFO', 'WARNING', 'ERROR')
     if loglevel not in loglevels:
@@ -82,3 +73,18 @@ def configure_logging(loglevel, logfile=None):
         logging.Formatter('[%(asctime)s] %(levelname)s - %(message)s',
                           '%m-%d %H:%M:%S'))
     logger.addHandler(handler)
+
+
+def exception_safe(exception, return_value):
+    """
+    Catch the exception, log it and return a value
+    """
+    def decorator(func):
+        def wrapper(*args, **kwds):
+            try:
+                return func(*args, **kwds)
+            except exception, e:
+                logger.error('A {} occured: {}'.format(exception, e))
+                return return_value
+        return wrapper
+    return decorator

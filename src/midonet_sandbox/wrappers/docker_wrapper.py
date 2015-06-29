@@ -3,9 +3,12 @@
 # @author: Antonio Sagliocco <antonio@midokura.com>, Midokura
 
 import logging
-
 import os
+
 from docker import Client
+from requests.exceptions import ConnectionError
+
+from midonet_sandbox.utils import exception_safe
 
 log = logging.getLogger('midonet-sandbox.docker')
 
@@ -13,8 +16,10 @@ log = logging.getLogger('midonet-sandbox.docker')
 class Docker(object):
     def __init__(self, socket):
         log.debug('DockerClient connecting to {}'.format(socket))
+        self._socket = socket
         self._client = Client(base_url=socket)
 
+    @exception_safe(ConnectionError, None)
     def build(self, dockerfile, image):
         """/
         :param dockerfile: The dockerfile full path
@@ -30,6 +35,8 @@ class Docker(object):
         for line in response:
             print eval(line)['stream'],
 
+
+    @exception_safe(ConnectionError, [])
     def list_images(self, prefix=None):
         """
         List the available images

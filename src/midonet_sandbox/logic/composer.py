@@ -2,15 +2,19 @@
 #
 # @author: Antonio Sagliocco <antonio@midokura.com>, Midokura
 
+
+
 import logging
 from collections import Counter
 
 import os
+from requests.exceptions import ConnectionError
 from yaml import load
 from midonet_sandbox.assets.assets import Assets
+from midonet_sandbox.configuration import Config
+from midonet_sandbox.utils import exception_safe
 from midonet_sandbox.wrappers.composer_wrapper import DockerComposer
 from midonet_sandbox.wrappers.docker_wrapper import Docker
-from midonet_sandbox.configuration import Config
 
 log = logging.getLogger('midonet-sandbox.composer')
 
@@ -27,7 +31,7 @@ class Composer(object):
         self._docker = Docker(configuration.get_sandbox_value('docker_socket'))
         self._composer = DockerComposer()
 
-
+    @exception_safe(ConnectionError, None)
     def run(self, flavour, name, force, override):
 
         log.info('Spawning {} sandbox'.format(flavour))
@@ -52,7 +56,9 @@ class Composer(object):
                                   '{}{}'.format(self.SANDBOX_PREFIX, name),
                                   override)
             composer.wait()
+            return True
 
+        return False
 
     @staticmethod
     def __get_sandbox_name(container_name):
@@ -63,6 +69,7 @@ class Composer(object):
     def __get_service_name(container_name):
         return '_'.join(container_name.split('_')[1:])
 
+    @exception_safe(ConnectionError, [])
     def list_running_sandbox(self):
         """
         List all the running sandbox
@@ -76,6 +83,7 @@ class Composer(object):
 
         return sandoxes
 
+    @exception_safe(ConnectionError, None)
     def stop(self, sandboxes, remove=False):
         """
         Stop the running sandbox
@@ -105,7 +113,6 @@ class Composer(object):
 
                     self._docker.remove_container(container)
 
-
     @staticmethod
     def __format_ports(ports):
         ports_list = list()
@@ -120,6 +127,7 @@ class Composer(object):
 
         return ','.join(sorted(ports_list))
 
+    @exception_safe(ConnectionError, [])
     def get_sandbox_detail(self, sandbox):
         """
 
