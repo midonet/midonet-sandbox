@@ -1,2 +1,2 @@
 cassandra:
-  image: sandobox/cassandra
+  image: sandbox/cassandra

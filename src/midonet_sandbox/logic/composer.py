@@ -159,11 +159,10 @@ class Composer(object):
                     if image:
                         components.append(image)
 
-        return ', '.join(['{}x {}'.format(component, repeat)
-                          for repeat, component in Counter(components).items()])
+        return Counter(components)
 
-
-    def _get_base_component_image(self, file, service):
+    @staticmethod
+    def _get_base_component_image(file, service):
         """
         """
         with open(file, 'rb') as _f_yml:

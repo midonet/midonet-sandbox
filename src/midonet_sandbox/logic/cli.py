@@ -15,11 +15,11 @@ from midonet_sandbox.logic.composer import Composer
 from midonet_sandbox.utils import configure_logging
 from midonet_sandbox.wrappers.docker_wrapper import Docker
 
-
 cli = """Midonet Sandbox Manager
 
 Usage:
     sandbox-manage [options] build <image>... [--publish]
+    sandbox-manage [options] build-all <flavour>
     sandbox-manage [options] run <flavour> --name=<name> [--override=<override>] [--force]
     sandbox-manage [options] stop <name>... [--remove]
     sandbox-manage [options] stop-all [--remove]
@@ -34,7 +34,8 @@ Options:
 """
 
 _ACTIONS_ = (
-    'build', 'run', 'stop', 'stop-all', 'flavours-list', 'images-list', 'sandbox-list')
+    'build', 'build-all', 'run', 'stop', 'stop-all', 'flavours-list',
+    'images-list', 'sandbox-list')
 
 log = logging.getLogger('midonet-sandbox.main')
 
@@ -65,6 +66,12 @@ def build(options):
         Builder().build(image, publish)
 
 
+def build_all(options):
+    flavour = options['<flavour>']
+
+    Builder().build_all(flavour)
+
+
 def flavours_list(options):
     assets = Assets()
     details = options['--details']
@@ -73,6 +80,8 @@ def flavours_list(options):
     for flavour in assets.list_flavours():
         if details:
             components = Composer().get_components_by_flavour(flavour)
+            components = ', '.join(['{}x {}'.format(count, image)
+                                    for image, count in components.items()])
             flavours.append([flavour, components])
         else:
             flavours.append([flavour])

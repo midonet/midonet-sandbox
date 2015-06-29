@@ -8,6 +8,7 @@ from midonet_sandbox.wrappers.docker_wrapper import Docker
 from midonet_sandbox.assets.assets import Assets
 from midonet_sandbox.exceptions import ImageNotFound
 from midonet_sandbox.configuration import Config
+from midonet_sandbox.logic.composer import Composer
 
 log = logging.getLogger('midonet-sandbox.builder')
 
@@ -21,6 +22,7 @@ class Builder(object):
         configuration = Config.instance_or_die()
         self._docker = Docker(configuration.get_sandbox_value('docker_socket'))
         self._assets = Assets()
+        self._composer = Composer()
 
     def build(self, image, publish=False):
         """
@@ -51,3 +53,14 @@ class Builder(object):
             log.error('Image {} not found, build aborted'.format(image))
 
             # TODO - publication
+
+    def build_all(self, flavour):
+        components = self._composer.get_components_by_flavour(flavour)
+        components = components.keys()
+        components = [c.replace('sandbox/', '') for c in components]
+
+        log.info('Building the following components: '
+                 '{}'.format(', '.join(components)))
+
+        for image in components:
+            self.build(image)
