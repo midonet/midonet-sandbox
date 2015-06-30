@@ -83,7 +83,8 @@ class Composer(object):
         sandoxes = set()
         containers = self._docker.list_containers(self.SANDBOX_PREFIX)
         for container in containers:
-            sandoxes.add(self.__get_sandbox_name(container['Names'][0]))
+            sandoxes.add(self.__get_sandbox_name(
+                self.__get_container_name(container['Names'])))
 
         return sandoxes
 
@@ -107,7 +108,8 @@ class Composer(object):
                 '{}{}_'.format(self.SANDBOX_PREFIX, sandbox))
 
             for container in containers:
-                service_name = self.__get_service_name(container['Names'][0])
+                service_name = self.__get_service_name(
+                    self.__get_container_name(container['Names']))
                 log.info('Sandbox {} - Stopping container {}'.format(sandbox,
                                                                      service_name))
                 self._docker.stop_container(container)
@@ -131,6 +133,13 @@ class Composer(object):
 
         return ','.join(sorted(ports_list))
 
+    @staticmethod
+    def __get_container_name(names):
+        for name in names:
+            name = name[1:]
+            if '/' not in name:
+                return name
+
     @exception_safe(ConnectionError, [])
     def get_sandbox_detail(self, sandbox):
         """
@@ -143,7 +152,7 @@ class Composer(object):
                 '{}{}_'.format(self.SANDBOX_PREFIX, sandbox)):
 
             ip = self._docker.container_ip(container)
-            name = container['Names'][0].replace('/', '')
+            name = self.__get_container_name(container['Names'])
             image = container['Image']
             ports = self.__format_ports(container['Ports'])
 

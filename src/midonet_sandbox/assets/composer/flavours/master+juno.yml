@@ -31,25 +31,38 @@ zookeeper3:
   - zookeeper1:zk1
   - zookeeper2:zk2
 
-#cassandra:
-#  extends:
-#    file: ../base/cassandra.yml
-#    service: cassandra
-#  image: sandbox/cassandra:master
-#
-#midolman:
-#  extends:
-#    file: ../base/midolman.yml
-#    service: midolman
-#  image: sandbox/midolman:master
-#  links:
-#  - "zookeeper:zk"
-#  - "cassandra:cs"
-#
-#api:
-#  extends:
-#    file: ../base/midonet-api.yml
-#    service: api
-#  image: sandbox/midonet-api:master
-#  links:
-#  - "zookeeper:zk"
+cassandra1:
+  extends:
+    file: $BASE/cassandra.yml
+    service: cassandra
+  image: sandbox/cassandra:master
+
+cassandra2:
+  extends:
+    file: $BASE/cassandra.yml
+    service: cassandra
+  image: sandbox/cassandra:master
+  links:
+  - cassandra1:cs1
+
+midolman:
+  extends:
+    file: $BASE/midolman.yml
+    service: midolman
+  image: sandbox/midolman:master
+  links:
+  - "zookeeper1:zk1"
+  - "zookeeper2:zk2"
+  - "zookeeper3:zk3"
+  - "cassandra1:cs1"
+  - "cassandra2:cs2"
+
+api:
+  extends:
+    file: $BASE/midonet-api.yml
+    service: api
+  image: sandbox/midonet-api:master
+  links:
+  - "zookeeper1:zk1"
+  - "zookeeper2:zk2"
+  - "zookeeper3:zk3"

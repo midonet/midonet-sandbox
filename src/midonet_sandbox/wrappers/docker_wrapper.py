@@ -29,7 +29,7 @@ class Docker(object):
         log.debug('Invoking docker build on {}'.format(dockerfile))
 
         response = self._client.build(path=os.path.dirname(dockerfile),
-                                      tag=image, pull=False, rm=True,
+                                      tag=image, pull=False, rm=False,
                                       dockerfile=os.path.basename(dockerfile))
 
         for line in response:

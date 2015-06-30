@@ -2,7 +2,7 @@
 
 # Update ZK hosts in case they were linked to this container
 if [[ `env | grep _PORT_2181_TCP_ADDR` ]]; then
-    ZK_HOSTS="$(env | grep _PORT_2181_TCP_ADDR | sed -e 's/.*_PORT_2181_TCP_ADDR=//g' -e 's/^.*/&:2181/g')"
+    ZK_HOSTS="$(env | grep _PORT_2181_TCP_ADDR | sed -e 's/.*_PORT_2181_TCP_ADDR=//g' -e 's/^.*/&:2181/g' | sort -u)"
     ZK_HOSTS="$(echo $ZK_HOSTS | sed 's/ /,/g')"
 fi
 
@@ -20,7 +20,7 @@ MIDONET_API_CFG=/usr/share/midonet-api/WEB-INF/web.xml
 
 sudo sed -i -e "/<param-name>rest_api-base_uri<\/param-name>/{n;s%.*%    <param-value>http://"$IP":8080/midonet-api</param-value>%g}" $MIDONET_API_CFG
 sudo sed -i -e "/<param-name>zookeeper-zookeeper_hosts<\/param-name>/{n;n;s%.*%    <param-value>"$ZK_HOSTS"</param-value>%g}" $MIDONET_API_CFG
-sudo sed -i -e "s/org.midonet.api.auth.keystone.v2_0.KeystoneService/org.midonet.cluster.auth.MockAuthService/g" $MIDONET_API_CFG
+sudo sed -i -e "s/org.midonet.api.auth.keystone.v2_0.KeystoneService/org.midonet.api.auth.MockAuthService/g" $MIDONET_API_CFG
 
 # Edit JAVA_OPTS
 CATALINA_SH=/usr/share/tomcat7/bin/catalina.sh

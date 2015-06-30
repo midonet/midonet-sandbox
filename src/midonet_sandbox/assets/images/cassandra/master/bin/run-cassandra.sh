@@ -12,7 +12,7 @@ SEEDS=${SEEDS:-$IP}
 
 # If this container is linked to other cassandra nodes, use them as seeds too
 if [[ `env | grep _PORT_9042_TCP_ADDR` ]]; then
-    SEEDS="$SEEDS,$(env | grep _PORT_9042_TCP_ADDR | sed 's/.*_PORT_9042_TCP_ADDR=//g' | sed -e :a -e N)"
+    SEEDS="$SEEDS,$(env | grep _PORT_9042_TCP_ADDR | sed 's/.*_PORT_9042_TCP_ADDR=//g' | sed -e :a -e N | sort -u)"
 fi
 
 sed -i -e "s/^cluster_name:.*/cluster_name: 'midonet'/

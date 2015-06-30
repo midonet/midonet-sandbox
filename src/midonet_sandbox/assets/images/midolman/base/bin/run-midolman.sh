@@ -12,13 +12,14 @@ fi
 
 # Update ZK hosts in case they were linked to this container
 if [[ `env | grep _PORT_2181_TCP_ADDR` ]]; then
-    MIDO_ZOOKEEPER_HOSTS="$(env | grep _PORT_2181_TCP_ADDR | sed -e 's/.*_PORT_2181_TCP_ADDR=//g' -e 's/^.*/&:2181/g')"
+    MIDO_ZOOKEEPER_HOSTS="$(env | grep _PORT_2181_TCP_ADDR | sed -e 's/.*_PORT_2181_TCP_ADDR=//g' -e 's/^.*/&:2181/g' | sort -u)"
     MIDO_ZOOKEEPER_HOSTS="$(echo $MIDO_ZOOKEEPER_HOSTS | sed 's/ /,/g')"
 fi
 
 # Update CASS hosts in case they were linked to this container
 if [[ `env | grep _PORT_9042_TCP_ADDR` ]]; then
-    CASS_SERVERS="$(env | grep _PORT_9042_TCP_ADDR | sed 's/.*_PORT_9042_TCP_ADDR=//g' | sed -e :a -e N)"
+    CASS_SERVERS="$(env | grep _PORT_9042_TCP_ADDR | sed 's/.*_PORT_9042_TCP_ADDR=//g' | sed -e :a -e N | sort -u)"
+    CASS_SERVERS="$(echo $CASS_SERVERS | sed 's/ /,/g')"
 fi
 
 if [ -z "$MIDO_ZOOKEEPER_HOSTS" ]; then
@@ -32,11 +33,11 @@ echo "Configuring agent using MIDO_ZOOKEEPER_ROOT_KEY: $MIDO_ZOOKEEPER_ROOT_KEY"
 sed -i -e 's/zookeeper_hosts = .*$/zookeeper_hosts = '"$MIDO_ZOOKEEPER_HOSTS"'/' /etc/midolman/midolman.conf
 sed -i -e 's/root_key = .*$/root_key = '"$(echo $MIDO_ZOOKEEPER_ROOT_KEY|sed 's/\//\\\//g')"'/' /etc/midolman/midolman.conf
 
-#cat << EOF > /root/.midonetrc
-#[zookeeper]
-#zookeeper_hosts = $MIDO_ZOOKEEPER_HOSTS
-#root_key = $MIDO_ZOOKEEPER_ROOT_KEY
-#EOF
+cat << EOF > /root/.midonetrc
+[zookeeper]
+zookeeper_hosts = $MIDO_ZOOKEEPER_HOSTS
+root_key = $MIDO_ZOOKEEPER_ROOT_KEY
+EOF
 
 
 mn-conf set -t default <<EOF
