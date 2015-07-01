@@ -6,6 +6,7 @@
 
 import logging
 from collections import Counter
+from midonet_sandbox.exceptions import FlavourNotFound
 
 import os
 from requests.exceptions import ConnectionError
@@ -160,6 +161,7 @@ class Composer(object):
 
         return containers
 
+    @exception_safe(FlavourNotFound, dict())
     def get_components_by_flavour(self, flavour):
         """
         """

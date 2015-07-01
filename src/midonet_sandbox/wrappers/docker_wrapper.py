@@ -3,11 +3,10 @@
 # @author: Antonio Sagliocco <antonio@midokura.com>, Midokura
 
 import logging
-import os
 
+import os
 from docker import Client
 from requests.exceptions import ConnectionError
-
 from midonet_sandbox.utils import exception_safe
 
 log = logging.getLogger('midonet-sandbox.docker')
@@ -33,8 +32,9 @@ class Docker(object):
                                       dockerfile=os.path.basename(dockerfile))
 
         for line in response:
-            print eval(line)['stream'],
-
+            eval_line = eval(line)
+            if 'stream' in eval_line:
+                print(eval_line['stream']),
 
     @exception_safe(ConnectionError, [])
     def list_images(self, prefix=None):

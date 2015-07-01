@@ -59,8 +59,9 @@ class Builder(object):
         components = components.keys()
         components = [c.replace('sandbox/', '') for c in components]
 
-        log.info('Building the following components: '
-                 '{}'.format(', '.join(components)))
+        if components:
+            log.info('Building the following components: '
+                     '{}'.format(', '.join(components)))
 
-        for image in components:
-            self.build(image)
+            for image in components:
+                self.build(image)
