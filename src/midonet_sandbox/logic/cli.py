@@ -93,10 +93,12 @@ def flavours_list(options):
     if flavours:
         headers = ['Flavours']
         if details:
-            headers = ['Flavours', 'Components']
+            headers = ['Flavour', 'Components']
 
         print(tabulate(flavours, headers=headers, tablefmt='psql'))
+        return
 
+    log.info('No flavours found')
 
 def run(options):
     flavour = options['<flavour>']
@@ -133,7 +135,10 @@ def images_list(options):
                            datetime.fromtimestamp(image['Created']))])
 
     if images:
-       print(tabulate(images, headers=['Image', 'Created'], tablefmt='psql'))
+        print(tabulate(images, headers=['Image', 'Created'], tablefmt='psql'))
+        return
+
+    log.info('No images found')
 
 
 def sandbox_list(options):
