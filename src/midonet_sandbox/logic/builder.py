@@ -54,14 +54,19 @@ class Builder(object):
 
             # TODO - publication
 
-    def build_all(self, flavour):
+    def build_all(self, flavour, force_rebuild):
         components = self._composer.get_components_by_flavour(flavour)
         components = components.keys()
         components = [c.replace('sandbox/', '') for c in components]
+        images = [','.join(image['RepoTags']).replace('sandbox/', '') for image
+                  in self._docker.list_images('sandbox/')]
 
         if components:
             log.info('Building the following components: '
                      '{}'.format(', '.join(components)))
 
             for image in components:
-                self.build(image)
+                if (image not in images) or force_rebuild:
+                    self.build(image)
+                else:
+                    log.info('{} image alredy exists. Skipping'.format(image))

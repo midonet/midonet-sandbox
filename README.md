@@ -18,23 +18,25 @@ Once you installed it, you can check the available flavours:
     $ sandbox-manage flavours-list
     [07-02 10:51:54] INFO - Cannot read ~/.midonet-sandboxrc    
     [07-02 10:51:54] INFO - Using default settings
-    +-------------+
-    | Flavours    |
-    |-------------|
-    | master+juno |
-    +-------------+
+    +--------------+
+    | Flavours     |
+    |--------------|
+    | master+juno  |
+    | 2015.03+juno |
+    +--------------+
+
    
-You may want to check which components this flavour provides:
+You may want to check which components these flavours provide:
 
     $ sandbox-manage flavours-list --details                                                                    
     [07-02 10:54:01] INFO - Cannot read ~/.midonet-sandboxrc
     [07-02 10:54:01] INFO - Using default settings
-    +-------------+----------------------------------------------------------------+
-    | Flavour     | Components                                                     |                                                
-    |-------------+----------------------------------------------------------------|
-    | master+juno | 2x sandbox/cassandra:master, 1x sandbox/midolman:master,       |
-    |             |  1x sandbox/midonet-api:master, 3x sandbox/zookeeper:master    |
-    +-------------+----------------------------------------------------------------+
+    +--------------+-------------------------------------------------------------------------------------------------------------------------------------------------+
+    | Flavour      | Components                                                                                                                                      |
+    |--------------+-------------------------------------------------------------------------------------------------------------------------------------------------|
+    | master+juno  | 1x sandbox/keystone:kilo, 2x sandbox/cassandra:master, 1x sandbox/midolman:master, 1x sandbox/midonet-api:master, 3x sandbox/zookeeper:master   |
+    | 2015.03+juno | 2x sandbox/cassandra:master, 1x sandbox/midolman:2015.03, 1x sandbox/keystone:kilo, 1x sandbox/midonet-api:2015.03, 3x sandbox/zookeeper:master |
+    +--------------+-------------------------------------------------------------------------------------------------------------------------------------------------+
 
 You can check if the required images are available in your docker installation:
  
@@ -143,12 +145,13 @@ the configuration file:
    
     $ sandbox-manage -c config.cfg flavours-list --details                                                       
     [07-02 11:41:30] INFO - Loading configuration file: config.cfg
-    +-------------+---------------------------------------------------------------------------------------------------------------------+
-    | Flavour     | Components                                                                                                          |
-    |-------------+---------------------------------------------------------------------------------------------------------------------|
-    | zk-only     | 3x sandbox/zookeeper:master                                                                                         |
-    | master+juno | 2x sandbox/cassandra:master, 1x sandbox/midolman:master, 1x sandbox/midonet-api:master, 3x sandbox/zookeeper:master |
-    +-------------+---------------------------------------------------------------------------------------------------------------------+
+    +--------------+-------------------------------------------------------------------------------------------------------------------------------------------------+
+    | Flavour      | Components                                                                                                                                      |
+    |--------------+-------------------------------------------------------------------------------------------------------------------------------------------------|
+    | zk-only      | 3x sandbox/zookeeper:master                                                                                                                     |
+    | master+juno  | 1x sandbox/keystone:kilo, 2x sandbox/cassandra:master, 1x sandbox/midolman:master, 1x sandbox/midonet-api:master, 3x sandbox/zookeeper:master   |
+    | 2015.03+juno | 2x sandbox/cassandra:master, 1x sandbox/midolman:2015.03, 1x sandbox/keystone:kilo, 1x sandbox/midonet-api:2015.03, 3x sandbox/zookeeper:master |
+    +--------------+-------------------------------------------------------------------------------------------------------------------------------------------------+
 
 The flavour file will inherit and reuse base components. You refer to base yml files using the $BASE variable:
 

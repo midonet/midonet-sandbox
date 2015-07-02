@@ -1,0 +1,74 @@
+zookeeper1:
+  extends:
+    file: $BASE/zookeeper.yml
+    service: zookeeper
+  image: sandbox/zookeeper:master
+  volumes:
+  - /zoo/conf/
+  environment:
+  - ZOO_ID=1
+
+zookeeper2:
+  extends:
+    file: $BASE/zookeeper.yml
+    service: zookeeper
+  image: sandbox/zookeeper:master
+  environment:
+  - ZOO_ID=2
+  volumes_from:
+  - zookeeper1
+
+zookeeper3:
+  extends:
+    file: $BASE/zookeeper.yml
+    service: zookeeper
+  image: sandbox/zookeeper:master
+  environment:
+  - ZOO_ID=3
+  volumes_from:
+  - zookeeper1
+  links:
+  - zookeeper1:zk1
+  - zookeeper2:zk2
+
+cassandra1:
+  extends:
+    file: $BASE/cassandra.yml
+    service: cassandra
+  image: sandbox/cassandra:master
+
+cassandra2:
+  extends:
+    file: $BASE/cassandra.yml
+    service: cassandra
+  image: sandbox/cassandra:master
+  links:
+  - cassandra1:cs1
+
+midolman:
+  extends:
+    file: $BASE/midolman.yml
+    service: midolman
+  image: sandbox/midolman:2015.03
+  links:
+  - "zookeeper1:zk1"
+  - "zookeeper2:zk2"
+  - "zookeeper3:zk3"
+  - "cassandra1:cs1"
+  - "cassandra2:cs2"
+
+api:
+  extends:
+    file: $BASE/midonet-api.yml
+    service: api
+  image: sandbox/midonet-api:2015.03
+  links:
+  - "zookeeper1:zk1"
+  - "zookeeper2:zk2"
+  - "zookeeper3:zk3"
+
+keystone:
+  extends:
+    file: $BASE/keystone.yml
+    service: keystone
+  image: sandbox/keystone:kilo

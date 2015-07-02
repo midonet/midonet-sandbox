@@ -19,7 +19,7 @@ cli = """Midonet Sandbox Manager
 
 Usage:
     sandbox-manage [options] build <image>... [--publish]
-    sandbox-manage [options] build-all <flavour>
+    sandbox-manage [options] build-all <flavour> [--force]
     sandbox-manage [options] run <flavour> --name=<name> [--override=<override>] [--force]
     sandbox-manage [options] stop <name>... [--remove]
     sandbox-manage [options] stop-all [--remove]
@@ -72,8 +72,10 @@ def build(options):
 
 def build_all(options):
     flavour = options['<flavour>']
+    force = options['--force']
 
-    Builder().build_all(flavour)
+
+    Builder().build_all(flavour, force_rebuild=force)
 
 
 def flavours_list(options):
