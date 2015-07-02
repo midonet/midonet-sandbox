@@ -66,3 +66,9 @@ api:
   - "zookeeper1:zk1"
   - "zookeeper2:zk2"
   - "zookeeper3:zk3"
+
+keystone:
+  extends:
+    file: $BASE/keystone.yml
+    service: keystone
+  image: sandbox/keystone:kilo

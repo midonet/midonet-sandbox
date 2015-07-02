@@ -13,6 +13,7 @@ from midonet_sandbox.assets.assets import Assets
 
 log = logging.getLogger('midonet-sandbox.dockercomposer')
 
+
 class DockerComposer(object):
     """
     Wrapper around the docker-composer CLI
@@ -27,8 +28,8 @@ class DockerComposer(object):
         self._assets = Assets()
         # set the DOCKER_HOST env var to point docker specified in the config
         self._env = os.environ.copy()
-        self._env['DOCKER_HOST'] = self._config.get_sandbox_value(
-            'docker_socket')
+        self._env['DOCKER_HOST'] = \
+            self._config.get_sandbox_value('docker_socket')
 
     def up(self, yml_file, name, override=None):
         """
