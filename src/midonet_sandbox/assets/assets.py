@@ -9,7 +9,6 @@ from midonet_sandbox import assets
 from midonet_sandbox.configuration import Config
 from midonet_sandbox.exceptions import ImageNotFound, FlavourNotFound
 
-
 BASE_ASSETS_PATH = os.path.dirname(assets.__file__)
 
 log = logging.getLogger('midonet-sandbox.assets')
@@ -23,9 +22,30 @@ class Assets(object):
         self._config = Config.instance_or_die()
 
     def get_image_path(self, image, tag):
+        """
+        Return the image path. Will first check the extra_components directory
+        if any, then fallback to the embedded images.
+        :param image: the image name
+        :param tag: the image tag
+        :return: the image path
+        :raises: ImageNotFound if the image cannot be found
+        """
+        path = None
+
+        # Checking the extra_components first
+        extra_components = self._config.get_sandbox_value('extra_components')
+        if extra_components:
+            path = os.path.join(extra_components, image, tag)
+
+        if path and os.path.isdir(path):
+            log.debug('Found extra image in {}'.format(path))
+            return path
+
+        # Checking the embedded images
         path = os.path.join(BASE_ASSETS_PATH, 'images', image, tag)
         if not os.path.isdir(path):
             raise ImageNotFound('Image path does not exist: {}'.format(path))
+
         return path
 
     @staticmethod
@@ -35,7 +55,6 @@ class Assets(object):
     def get_abs_image_dockerfile(self, image, tag):
         abs_image_path = os.path.join(self.get_image_path(image, tag),
                                       '{}-{}.dockerfile'.format(image, tag))
-
         if not os.path.isfile(abs_image_path):
             raise ImageNotFound(
                 'Image file not found: {}'.format(abs_image_path))

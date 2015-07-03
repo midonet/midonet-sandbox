@@ -40,12 +40,14 @@ class DockerComposer(object):
         :return: the process output
         """
 
-        final_yml = self._apply_substitutions(yml_file)
+        temp_yml = self._apply_substitutions(yml_file)
 
         if override:
-            final_yml = self._apply_override(final_yml, override)
+            temp_yml = self._apply_override(temp_yml, override)
 
-        command = ['docker-compose', '-f', final_yml, '-p', name, 'up', '-d']
+        temp_yml = self._replace_relative_paths(yml_file, temp_yml)
+
+        command = ['docker-compose', '-f', temp_yml, '-p', name, 'up', '-d']
         log.debug('Running external process: {}'.format(' '.join(command)))
 
         return subprocess.Popen(command, stderr=subprocess.STDOUT,
@@ -105,5 +107,25 @@ class DockerComposer(object):
 
         temp_yml = tempfile.NamedTemporaryFile(suffix='.yml', delete=False)
 
+        dump(yml_content, temp_yml)
+        return temp_yml.name
+
+    def _replace_relative_paths(self, yml_file, tmp_yml):
+        """
+        Replace the relative paths in the temp file to abs path that refers
+        to the original yml base path
+        """
+        local_path = os.path.split(yml_file)[0]
+
+        with open(tmp_yml, 'rb') as _f_yml:
+            yml_content = load(_f_yml)
+            for component, definition in yml_content.items():
+                if 'extends' in definition:
+                    file = definition['extends']['file']
+                    if not os.path.isabs(file):
+                        definition['extends']['file'] = os.path.join(local_path,
+                                                                     file)
+
+        temp_yml = tempfile.NamedTemporaryFile(suffix='.yml', delete=False)
         dump(yml_content, temp_yml)
         return temp_yml.name

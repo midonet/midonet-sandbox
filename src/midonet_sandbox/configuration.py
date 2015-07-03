@@ -9,11 +9,11 @@ from StringIO import StringIO
 from os.path import isfile
 from midonet_sandbox.utils import Singleton
 
-
 log = logging.getLogger('midonet-sandbox.configuration')
 
 DEFAULT_SETTINGS = {
     'extra_flavours': None,
+    'extra_components': None,
     'docker_socket': 'unix://var/run/docker.sock'
 }
 
@@ -24,11 +24,11 @@ class Config(object):
     Read and parse the configuration file. The configuration file format is:
     ---------------
     [sandbox]
-    extra_flavours = None
-    docker_socket = 'unix://var/run/docker.sock'
+    extra_flavours = <path_to_extra_flavours_directory>
+    extra_components = <path_to_extra_flavours_directory>
+    docker_socket = unix://var/run/docker.sock
     -----------------
     """
-
 
     def __init__(self, config_file):
         self._config = ConfigParser.SafeConfigParser(defaults=DEFAULT_SETTINGS)
