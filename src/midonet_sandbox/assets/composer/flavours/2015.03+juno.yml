@@ -2,7 +2,7 @@ zookeeper1:
   extends:
     file: $BASE/zookeeper.yml
     service: zookeeper
-  image: sandbox/zookeeper:master
+  image: sandbox/zookeeper:3.4.5
   volumes:
   - /zoo/conf/
   environment:
@@ -12,7 +12,7 @@ zookeeper2:
   extends:
     file: $BASE/zookeeper.yml
     service: zookeeper
-  image: sandbox/zookeeper:master
+  image: sandbox/zookeeper:3.4.5
   environment:
   - ZOO_ID=2
   volumes_from:
@@ -22,7 +22,7 @@ zookeeper3:
   extends:
     file: $BASE/zookeeper.yml
     service: zookeeper
-  image: sandbox/zookeeper:master
+  image: sandbox/zookeeper:3.4.5
   environment:
   - ZOO_ID=3
   volumes_from:
@@ -35,13 +35,13 @@ cassandra1:
   extends:
     file: $BASE/cassandra.yml
     service: cassandra
-  image: sandbox/cassandra:master
+  image: sandbox/cassandra:2.0.10
 
 cassandra2:
   extends:
     file: $BASE/cassandra.yml
     service: cassandra
-  image: sandbox/cassandra:master
+  image: sandbox/cassandra:2.0.10
   links:
   - cassandra1:cs1
 
