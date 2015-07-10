@@ -1,2 +1,3 @@
 zookeeper:
   image: sandbox/zookeeper
+  privileged: true

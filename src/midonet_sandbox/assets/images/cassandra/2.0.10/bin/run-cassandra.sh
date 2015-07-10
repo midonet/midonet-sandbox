@@ -20,5 +20,9 @@ sed -i -e "s/^cluster_name:.*/cluster_name: 'midonet'/
            s/rpc_address:.*/rpc_address: $IP/
            s/seeds:.*$/seeds: \"$SEEDS\"/" /etc/cassandra/cassandra.yaml
 
+# Reduce the max_heap_size so it fits on an all-in-one
+sed -i -e "s/^#MAX_HEAP_SIZE=.*/MAX_HEAP_SIZE=\"128M\"/
+           s/^#HEAP_NEWSIZE=.*/HEAP_NEWSIZE=\"64M\"/" /etc/cassandra/cassandra-env.sh
+
 echo Starting Cassandra on $IP...
-exec cassandra -f
+exec /sbin/init

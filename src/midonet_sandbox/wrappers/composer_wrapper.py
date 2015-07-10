@@ -89,7 +89,9 @@ class DockerComposer(object):
         with open(yml_file, 'rb') as _f_yml:
             yml_content = load(_f_yml)
             for component, definition in yml_content.items():
-                service = definition['extends']['service']
+                service = None
+                if 'extends' in definition:
+                    service = definition['extends']['service']
                 if service in components:
 
                     override_path = os.path.join(override, service)

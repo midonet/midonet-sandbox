@@ -68,6 +68,17 @@ Ok, so let's build the required images for the flavour:
     Step 0 : FROM ubuntu:14.04
     [... cut ...]
     
+If you modify some of the images (dockerfiles or associated files), you can build them independently:
+
+    $ sandbox-manager -c config.cfg build midonet:master
+    [07-10 16:18:16] INFO - Loading configuration file: config.cfg
+    [07-10 16:18:16] INFO - Build started for midolman:master, publish is False
+    [07-10 16:18:16] INFO - Now building sandbox/midolman:base
+    Step 0 : FROM ubuntu-upstart:14.04
+    [... cut ...]
+
+    
+**NOTE: If creating the images is very slow, try setting the nofile limit to 1024 in /etc/init/docker.conf and restart docker ([bug report](https://bugs.launchpad.net/ubuntu/+source/apt/+bug/1332440)).**
     
 Now all the required images are available:
 
