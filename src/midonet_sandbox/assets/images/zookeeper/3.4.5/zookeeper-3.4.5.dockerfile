@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM ubuntu-upstart:14.04
 MAINTAINER MidoNet (http://midonet.org)
 
 # Install zookeeper and dependences

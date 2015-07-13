@@ -74,7 +74,6 @@ def build_all(options):
     flavour = options['<flavour>']
     force = options['--force']
 
-
     Builder().build_all(flavour, force_rebuild=force)
 
 
@@ -101,6 +100,7 @@ def flavours_list(options):
         return
 
     log.info('No flavours found')
+
 
 def run(options):
     flavour = options['<flavour>']

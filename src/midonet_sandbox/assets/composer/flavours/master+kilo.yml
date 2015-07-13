@@ -3,6 +3,7 @@ zookeeper1:
     file: $BASE/zookeeper.yml
     service: zookeeper
   image: sandbox/zookeeper:3.4.5
+  hostname: zookeeper1
   volumes:
   - /zoo/conf/
   environment:
@@ -13,6 +14,7 @@ zookeeper2:
     file: $BASE/zookeeper.yml
     service: zookeeper
   image: sandbox/zookeeper:3.4.5
+  hostname: zookeeper2
   environment:
   - ZOO_ID=2
   volumes_from:
@@ -23,6 +25,7 @@ zookeeper3:
     file: $BASE/zookeeper.yml
     service: zookeeper
   image: sandbox/zookeeper:3.4.5
+  hostname: zookeeper3
   environment:
   - ZOO_ID=3
   volumes_from:
@@ -36,12 +39,14 @@ cassandra1:
     file: $BASE/cassandra.yml
     service: cassandra
   image: sandbox/cassandra:2.0.10
+  hostname: cassandra1
 
 cassandra2:
   extends:
     file: $BASE/cassandra.yml
     service: cassandra
   image: sandbox/cassandra:2.0.10
+  hostname: cassandra2
   links:
   - cassandra1:cs1
 
@@ -50,6 +55,7 @@ midolman:
     file: $BASE/midolman.yml
     service: midolman
   image: sandbox/midolman:master
+  hostname: midolman
   links:
   - "zookeeper1:zk1"
   - "zookeeper2:zk2"
@@ -62,6 +68,7 @@ api:
     file: $BASE/midonet-api.yml
     service: api
   image: sandbox/midonet-api:master
+  hostname: api
   links:
   - "zookeeper1:zk1"
   - "zookeeper2:zk2"
@@ -72,3 +79,4 @@ keystone:
     file: $BASE/keystone.yml
     service: keystone
   image: sandbox/keystone:kilo
+  hostname: keystone

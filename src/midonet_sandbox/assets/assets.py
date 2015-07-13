@@ -68,15 +68,16 @@ class Assets(object):
         flavours.extend([yml for yml in os.listdir(package_path) if
                          yml.lower().endswith('.yml')])
 
-        extra_path = self._config.get_sandbox_value('extra_flavours')
-        if extra_path:
-            if os.path.isdir(extra_path):
+        extra_flavours = self._config.get_sandbox_value('extra_flavours')
+        if extra_flavours:
+            extra_flavours = os.path.abspath(extra_flavours)
+            if os.path.isdir(extra_flavours):
                 flavours.extend(
-                    [yml for yml in os.listdir(extra_path) if
+                    [yml for yml in os.listdir(extra_flavours) if
                      yml.endswith('.yml')])
             else:
                 log.warning(
-                    'Ignoring {}. Not a valid directory'.format(extra_path))
+                    'Ignoring {}. Not a valid directory'.format(extra_flavours))
 
         return set(flavours)
 
@@ -88,10 +89,12 @@ class Assets(object):
         extra_flavours = self._config.get_sandbox_value('extra_flavours')
         flavour_paths = [os.path.join(BASE_ASSETS_PATH, 'composer', 'flavours')]
 
-        if extra_flavours and os.path.isdir(extra_flavours):
-            flavour_paths = [extra_flavours,
-                             os.path.join(BASE_ASSETS_PATH, 'composer',
-                                          'flavours')]
+        if extra_flavours:
+            extra_flavours = os.path.abspath(extra_flavours)
+            if os.path.isdir(extra_flavours):
+                flavour_paths = [extra_flavours,
+                                 os.path.join(BASE_ASSETS_PATH, 'composer',
+                                              'flavours')]
 
         return flavour_paths
 

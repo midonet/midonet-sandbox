@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Midonet do not support ipv6
+sysctl -w net.ipv6.conf.all.disable_ipv6=1
+sysctl -w net.ipv6.conf.default.disable_ipv6=1
+sysctl -w net.ipv6.conf.lo.disable_ipv6=1
+
 # Default cassandra replication factor
 if [ -z "$CASS_FACTOR" ]; then
     CASS_FACTOR=3
@@ -55,5 +60,4 @@ agent.haproxy_health_monitor.haproxy_file_loc=/etc/midolman/l4lb/
 EOF
 
 echo "Starting agent!"
-
-exec /usr/share/midolman/midolman-start
+exec /sbin/init

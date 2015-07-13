@@ -30,15 +30,14 @@ if [[ `env | grep _PORT_2888_TCP_ADDR` ]]; then
     cat /tmp/zoo.cfg >> /zoo/conf/zoo.cfg
 fi
 
-if [ ! -f /zoo/conf/zoo.cfg ] ; then
-    echo 'Waiting for config file to appear...'
-    while [ ! -f /zoo/conf/zoo.cfg ] ; do
-        sleep 1
-    done
-    echo 'Config file found, starting server.'
-fi
+echo 'Waiting for config file to appear...'
+while [ ! -f /zoo/conf/zoo.cfg ] ; do
+    sleep 1
+done
+echo 'Config file found, starting server.'
 
 cat /zoo/conf/zoo.cfg >> /etc/zookeeper/conf/zoo.cfg
 echo "Servers in the QUORUM:"
 cat /etc/zookeeper/conf/zoo.cfg
-/usr/share/zookeeper/bin/zkServer.sh start-foreground
+
+exec /sbin/init
