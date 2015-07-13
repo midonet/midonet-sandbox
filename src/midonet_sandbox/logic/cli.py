@@ -20,7 +20,7 @@ cli = """Midonet Sandbox Manager
 Usage:
     sandbox-manage [options] build <image>... [--publish]
     sandbox-manage [options] build-all <flavour> [--force]
-    sandbox-manage [options] run <flavour> --name=<name> [--override=<override>] [--force]
+    sandbox-manage [options] run <flavour> --name=<name> [--override=<override>] [--provision=<script>] [--force]
     sandbox-manage [options] stop <name>... [--remove]
     sandbox-manage [options] stop-all [--remove]
     sandbox-manage [options] flavours-list [--details]
@@ -107,8 +107,9 @@ def run(options):
     name = options['--name']
     force = options['--force']
     override = options['--override']
+    provision = options['--provision']
 
-    if Composer().run(flavour, name, force, override):
+    if Composer().run(flavour, name, force, override, provision):
         print_sandbox_details([name])
 
 

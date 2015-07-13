@@ -42,7 +42,7 @@ class Config(object):
                 log.info('Cannot read {}'.format(config_file))
             log.info('Using default settings')
 
-        log.debug('Settings: {}'.format(self.dump_config(self._config)))
+        log.debug('Settings: \n{}'.format(self.dump_config(self._config)))
 
     def get_sandbox_value(self, param):
         return self._config.get('sandbox', param)

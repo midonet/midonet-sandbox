@@ -5,9 +5,10 @@
 
 
 import logging
+import subprocess
 from collections import Counter
-from midonet_sandbox.exceptions import FlavourNotFound
 
+from midonet_sandbox.exceptions import FlavourNotFound
 import os
 from requests.exceptions import ConnectionError
 from yaml import load
@@ -33,8 +34,15 @@ class Composer(object):
         self._composer = DockerComposer()
 
     @exception_safe(ConnectionError, None)
-    def run(self, flavour, name, force, override):
-
+    def run(self, flavour, name, force=False, override=None, provision=None):
+        """
+        :param flavour: The flavour name
+        :param name: The sandbox name
+        :param force: Force restarting without asking
+        :param override: An override path
+        :param provision: A provisioning script path
+        :return: True if the sandbox has been started, False otherwise
+        """
         message = 'Spawning {} sandbox'.format(flavour)
         if override:
             message += ' with override {}'.format(override)
@@ -61,6 +69,19 @@ class Composer(object):
                                   '{}{}'.format(self.SANDBOX_PREFIX, name),
                                   override)
             composer.wait()
+
+            if provision:
+                provision = os.path.abspath(provision)
+                if os.path.isfile(provision) and os.access(provision, os.X_OK):
+                    log.info(
+                        'Running provisioning script: {}'.format(provision))
+                    p = subprocess.Popen(provision, stderr=subprocess.STDOUT)
+                    p.wait()
+                else:
+                    log.error(
+                        'File {} does not exist or it\'s not executable'.format(
+                            provision
+                        ))
             return True
 
         return False

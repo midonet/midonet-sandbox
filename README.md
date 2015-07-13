@@ -21,8 +21,8 @@ Once you installed it, you can check the available flavours:
     +--------------+
     | Flavours     |
     |--------------|
-    | master+juno  |
-    | 2015.03+juno |
+    | master+kilo  |
+    | 2015.03+kilo |
     +--------------+
 
    
@@ -34,8 +34,8 @@ You may want to check which components these flavours provide:
     +--------------+-------------------------------------------------------------------------------------------------------------------------------------------------+
     | Flavour      | Components                                                                                                                                      |
     |--------------+-------------------------------------------------------------------------------------------------------------------------------------------------|
-    | master+juno  | 1x sandbox/keystone:kilo, 2x sandbox/cassandra:master, 1x sandbox/midolman:master, 1x sandbox/midonet-api:master, 3x sandbox/zookeeper:master   |
-    | 2015.03+juno | 2x sandbox/cassandra:master, 1x sandbox/midolman:2015.03, 1x sandbox/keystone:kilo, 1x sandbox/midonet-api:2015.03, 3x sandbox/zookeeper:master |
+    | master+kilo  | 1x sandbox/keystone:kilo, 2x sandbox/cassandra:master, 1x sandbox/midolman:master, 1x sandbox/midonet-api:master, 3x sandbox/zookeeper:master   |
+    | 2015.03+kilo | 2x sandbox/cassandra:master, 1x sandbox/midolman:2015.03, 1x sandbox/keystone:kilo, 1x sandbox/midonet-api:2015.03, 3x sandbox/zookeeper:master |
     +--------------+-------------------------------------------------------------------------------------------------------------------------------------------------+
 
 You can check if the required images are available in your docker installation:
@@ -59,7 +59,7 @@ In this case Docker was running in a VM, so let's specify this in the config fil
     
 Ok, so let's build the required images for the flavour:
  
-    $ sandbox-manage -c config.cfg build-all master+juno                                                         
+    $ sandbox-manage -c config.cfg build-all master+kilo                                                         
     [07-02 11:04:28] INFO - Loading configuration file: config.cfg
     [07-02 11:04:28] INFO - Building the following components: cassandra:master, midolman:master, midonet-api:master, zookeeper:master
     [07-02 11:04:28] INFO - Build started for cassandra:master, publish is False
@@ -94,9 +94,9 @@ and we can start a sandbox based on this flavour, let's call it staging.
 
 ---
 
-    $ sandbox-manage -c config.cfg run master+juno --name staging                                                
+    $ sandbox-manage -c config.cfg run master+kilo --name staging                                                
     [07-02 11:20:36] INFO - Loading configuration file: config.cfg
-    [07-02 11:20:36] INFO - Spawning master+juno sandbox
+    [07-02 11:20:36] INFO - Spawning master+kilo sandbox
     Creating mnsandboxstaging_cassandra1_1...
     Creating mnsandboxstaging_cassandra2_1...
     Creating mnsandboxstaging_zookeeper1_1...
@@ -149,8 +149,8 @@ the configuration file:
     | Flavour      | Components                                                                                                                                      |
     |--------------+-------------------------------------------------------------------------------------------------------------------------------------------------|
     | zk-only      | 3x sandbox/zookeeper:master                                                                                                                     |
-    | master+juno  | 1x sandbox/keystone:kilo, 2x sandbox/cassandra:master, 1x sandbox/midolman:master, 1x sandbox/midonet-api:master, 3x sandbox/zookeeper:master   |
-    | 2015.03+juno | 2x sandbox/cassandra:master, 1x sandbox/midolman:2015.03, 1x sandbox/keystone:kilo, 1x sandbox/midonet-api:2015.03, 3x sandbox/zookeeper:master |
+    | master+kilo  | 1x sandbox/keystone:kilo, 2x sandbox/cassandra:master, 1x sandbox/midolman:master, 1x sandbox/midonet-api:master, 3x sandbox/zookeeper:master   |
+    | 2015.03+kilo | 2x sandbox/cassandra:master, 1x sandbox/midolman:2015.03, 1x sandbox/keystone:kilo, 1x sandbox/midonet-api:2015.03, 3x sandbox/zookeeper:master |
     +--------------+-------------------------------------------------------------------------------------------------------------------------------------------------+
 
 The flavour file will inherit and reuse base components. You refer to base yml files using the $BASE variable:
@@ -169,6 +169,32 @@ The flavour file will inherit and reuse base components. You refer to base yml f
       - 9000:2181
     
     [ .. cut ...]
+
+### Provide your own component
+Same way, you can provide your own components creating a components directory and passing it in the configuration file
+using the *extra_components* parameter.
+
+The component directory must follow a structure like ($component/$version/$(component-version).dockerfile).
+For example, if want to provide your zookeeper component tagging it as master, the associated components directory
+will be something like:
+
+    extra-components
+    └── myzookeeper
+        └── master
+            ├── bin
+            │       └── run-zookeeper.sh
+            └── myzookeeper-master.dockerfile
+
+
+This specify the myzookeeper:master component (docker image) that you can use in your flavours.
+
+The configuration file will look similar to:
+
+    $ cat config.cfg                                                                                             
+    [sandbox]
+    extra_flavours=/workplace/midonet-sandbox/venv/extra
+    extra_components=/workplace/midonet-sandbox/venv/extra-components
+    docker_socket = tcp://192.168.33.10:4243
 
 
 ### Provide an override
@@ -200,9 +226,47 @@ Typical uses of an override is to pass a new debian package and install it, or c
 
 To apply an override to a sandbox you can use the --override parameter:
 
-    $ sandbox-manage -c config.cfg run master+juno --name staging --override /workplace/midonet-sandbox/venv/myoverride 
+    $ sandbox-manage -c config.cfg run master+kilo --name staging --override /workplace/midonet-sandbox/venv/myoverride 
     [07-02 11:52:59] INFO - Loading configuration file: config.cfg
-    [07-02 11:52:59] INFO - Spawning master+juno sandbox with override /workplace/midonet-sandbox/venv/myoverride
+    [07-02 11:52:59] INFO - Spawning master+kilo sandbox with override /workplace/midonet-sandbox/venv/myoverride
     Recreating mnsandboxstaging_cassandra1_1...
     Recreating mnsandboxstaging_cassandra2_1...
     [ ... cut ... ]
+
+
+### Provide a provisioning script
+You may want to configure a virtual topology once the sandbox is up&running. 
+An handy way to achieve this would be passing a provisioning script at the command line. 
+This script will be run just after all the containers are up and will take care of inizializing the virtual topology.
+A command line will simply looks similar to:
+
+    $ sandbox-manage -c config.cfg run master+kilo --name staging --provision venv/myoverride/provision.sh
+
+
+Eg: The following provisioning script will create a tunnel zone and register two hosts to it:
+
+    #!/bin/sh
+    set -uxe
+    
+    # Wait that all services are up&running
+    sleep 30
+    
+    CLI_HOST="$(docker ps | grep midonet-api | awk '{print $1}')"
+    CLI_COMMAND="docker exec $CLI_HOST midonet-cli -A -e"
+    
+    HOST0_ID=$($CLI_COMMAND host list | head -n 1 | awk '{print $2}')
+    HOST1_ID=$($CLI_COMMAND host list | tail -n 1 | awk '{print $2}')
+    HOST0_NAME=$($CLI_COMMAND host $HOST0_ID show name)
+    HOST1_NAME=$($CLI_COMMAND host $HOST1_ID show name)
+    
+    MIDOLMAN1_IP="$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $HOST0_NAME)"
+    MIDOLMAN2_IP="$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $HOST1_NAME)"
+    
+    # Create the tunnelzone and add midolman
+    $CLI_COMMAND tunnel-zone create name default type vxlan 
+    
+    TZONEID=$($CLI_COMMAND tunnel-zone list | awk '{print $2}')
+    
+    $CLI_COMMAND tunnel-zone $TZONEID add member host $HOST0_ID address $MIDOLMAN1_IP
+    $CLI_COMMAND tunnel-zone $TZONEID add member host $HOST1_ID address $MIDOLMAN2_IP
+
