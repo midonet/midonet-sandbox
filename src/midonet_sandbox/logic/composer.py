@@ -17,6 +17,7 @@ from midonet_sandbox.configuration import Config
 from midonet_sandbox.utils import exception_safe
 from midonet_sandbox.wrappers.composer_wrapper import DockerComposer
 from midonet_sandbox.wrappers.docker_wrapper import Docker
+from midonet_sandbox.logic.container import Container
 
 log = logging.getLogger('midonet-sandbox.composer')
 
@@ -91,22 +92,17 @@ class Composer(object):
         return container_name.split('_')[0].replace(Composer.SANDBOX_PREFIX,
                                                     '').replace('/', '')
 
-    @staticmethod
-    def __get_service_name(container_name):
-        return '_'.join(container_name.split('_')[1:])
-
     @exception_safe(ConnectionError, [])
     def list_running_sandbox(self):
         """
         List all the running sandbox
         :return: The list of all the running sandbox
         """
-
         sandoxes = set()
         containers = self._docker.list_containers(self.SANDBOX_PREFIX)
         for container in containers:
-            sandoxes.add(self.__get_sandbox_name(
-                self.__get_container_name(container['Names'])))
+            container = Container(container)
+            sandoxes.add(self.__get_sandbox_name(container.name))
 
         return sandoxes
 
@@ -118,7 +114,6 @@ class Composer(object):
         :param sandbox:
         :return:
         """
-
         running_sandboxes = self.list_running_sandbox()
 
         for sandbox in sandboxes:
@@ -130,8 +125,7 @@ class Composer(object):
                 '{}{}_'.format(self.SANDBOX_PREFIX, sandbox))
 
             for container in containers:
-                service_name = self.__get_service_name(
-                    self.__get_container_name(container['Names']))
+                service_name = Container(container).service_name
                 log.info('Sandbox {} - Stopping container {}'.format(sandbox,
                                                                      service_name))
                 self._docker.stop_container(container)
@@ -140,27 +134,6 @@ class Composer(object):
                              'container {}'.format(sandbox, service_name))
 
                     self._docker.remove_container(container)
-
-    @staticmethod
-    def __format_ports(ports):
-        ports_list = list()
-        for port in ports:
-            if 'PublicPort' in port:
-                ports_list.append(
-                    '{}/{}->{}:{}'.format(port['Type'], port['PrivatePort'],
-                                          port['IP'], port['PublicPort']))
-            else:
-                ports_list.append(
-                    '{}/{}'.format(port['Type'], port['PrivatePort']))
-
-        return ','.join(sorted(ports_list))
-
-    @staticmethod
-    def __get_container_name(names):
-        for name in names:
-            name = name[1:]
-            if '/' not in name:
-                return name
 
     @exception_safe(ConnectionError, [])
     def get_sandbox_detail(self, sandbox):
@@ -173,10 +146,11 @@ class Composer(object):
         for container in self._docker.list_containers(
                 '{}{}_'.format(self.SANDBOX_PREFIX, sandbox)):
 
-            ip = self._docker.container_ip(container)
-            name = self.__get_container_name(container['Names'])
-            image = container['Image']
-            ports = self.__format_ports(container['Ports'])
+            container = Container(container)
+            ip = container.ip
+            name = container.name
+            image = container.image
+            ports = container.ports(pretty=True)
 
             containers.append([sandbox, name, image, ports, ip])
 

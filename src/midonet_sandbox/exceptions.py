@@ -12,3 +12,7 @@ class ImageNotFound(Sandbox):
 
 class FlavourNotFound(Sandbox):
     pass
+
+
+class ContainerNotFound(Sandbox):
+    pass

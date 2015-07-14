@@ -4,6 +4,7 @@
 
 import logging
 from datetime import datetime
+import keyword
 
 import humanize
 from docopt import docopt
@@ -12,6 +13,7 @@ from midonet_sandbox.assets.assets import BASE_ASSETS_PATH, Assets
 from midonet_sandbox.configuration import Config
 from midonet_sandbox.logic.builder import Builder
 from midonet_sandbox.logic.composer import Composer
+from midonet_sandbox.logic.container import Container
 from midonet_sandbox.utils import configure_logging
 from midonet_sandbox.wrappers.docker_wrapper import Docker
 
@@ -23,6 +25,8 @@ Usage:
     sandbox-manage [options] run <flavour> --name=<name> [--override=<override>] [--provision=<script>] [--force]
     sandbox-manage [options] stop <name>... [--remove]
     sandbox-manage [options] stop-all [--remove]
+    sandbox-manage [options] exec <container> <command>
+    sandbox-manage [options] ssh <container>
     sandbox-manage [options] flavours-list [--details]
     sandbox-manage [options] images-list
     sandbox-manage [options] sandbox-list [--details] [--name=<name>]
@@ -34,8 +38,8 @@ Options:
 """
 
 _ACTIONS_ = (
-    'build', 'build-all', 'run', 'stop', 'stop-all', 'flavours-list',
-    'images-list', 'sandbox-list')
+    'build', 'build-all', 'run', 'stop', 'stop-all', 'exec', 'ssh',
+    'flavours-list', 'images-list', 'sandbox-list')
 
 log = logging.getLogger('midonet-sandbox.main')
 
@@ -55,6 +59,8 @@ def main():
     for action in _ACTIONS_:
         if options[action]:
             action = action.replace('-', '_')
+            if keyword.iskeyword(action):
+                action = '{}_'.format(action)
             globals()[action](options)
             break
 
@@ -127,6 +133,20 @@ def stop_all(options):
     composer.stop(composer.list_running_sandbox(), remove)
 
 
+def exec_(options):
+    container = Container.for_name(options['<container>'])
+    command = options['<command>']
+
+    if container:
+        container.execute(command)
+
+
+def ssh(options):
+    container = Container.for_name(options['<container>'])
+    if container:
+        container.ssh()
+
+
 def images_list(options):
     docker = Docker(Config.instance_or_die().get_sandbox_value('docker_socket'))
     images = list()
@@ -177,3 +197,7 @@ def print_sandbox_details(sandboxes):
     if sandbox_list:
         headers = ['Sandbox', 'Name', 'Image', 'Ports', 'Ip']
         print(tabulate(sandbox_list, headers=headers, tablefmt='psql'))
+
+
+if __name__ == '__main__':
+    main()

@@ -3,6 +3,7 @@
 # @author: Antonio Sagliocco <antonio@midokura.com>, Midokura
 
 import logging
+import subprocess
 
 import os
 from docker import Client
@@ -73,6 +74,17 @@ class Docker(object):
 
         return containers
 
+    def container_by_name(self, name):
+        containers = self.list_containers()
+        for container in containers:
+            if name == self.principal_container_name(container):
+                return container
+
+    def principal_container_name(self, container):
+        for name in container['Names']:
+            if '/' not in name[1:]:
+                return name[1:]
+
     def container_ip(self, container):
         return self._client.inspect_container(container)['NetworkSettings'][
             'IPAddress']
@@ -82,3 +94,19 @@ class Docker(object):
 
     def remove_container(self, container):
         self._client.remove_container(container)
+
+    @exception_safe(OSError, None)
+    def execute(self, container, command):
+        """
+        Execute a command inside the container.
+
+        NOTE: Needs the 'docker' binary installed in the host
+        """
+        cmd = ['docker', 'exec', '-it',
+               self.principal_container_name(container), command]
+        log.debug('Running command: "{}"'.format(' '.join(cmd)))
+        p = subprocess.Popen(cmd, stderr=subprocess.STDOUT)
+        p.wait()
+
+    def ssh(self, container):
+        self.execute(container, 'bash')
