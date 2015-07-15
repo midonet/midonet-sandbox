@@ -4,6 +4,8 @@
 
 import logging
 
+from injector import inject, singleton
+
 import os
 from midonet_sandbox import assets
 from midonet_sandbox.configuration import Config
@@ -14,12 +16,14 @@ BASE_ASSETS_PATH = os.path.dirname(assets.__file__)
 log = logging.getLogger('midonet-sandbox.assets')
 
 
+@singleton
 class Assets(object):
     """
     """
 
-    def __init__(self):
-        self._config = Config.instance_or_die()
+    @inject(config=Config)
+    def __init__(self, config):
+        self._config = config
 
     def get_image_path(self, image, tag):
         """

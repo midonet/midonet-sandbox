@@ -66,9 +66,9 @@ class Docker(object):
         containers = self._client.containers()
         filtered = list()
         if prefix:
-            for container in containers:
-                if prefix in container['Names'][0]:
-                    filtered.append(container)
+            for container_ref in containers:
+                if prefix in container_ref['Names'][0]:
+                    filtered.append(container_ref)
 
             containers = filtered
 
@@ -76,37 +76,37 @@ class Docker(object):
 
     def container_by_name(self, name):
         containers = self.list_containers()
-        for container in containers:
-            if name == self.principal_container_name(container):
-                return container
+        for container_ref in containers:
+            if name == self.principal_container_name(container_ref):
+                return container_ref
 
-    def principal_container_name(self, container):
-        for name in container['Names']:
+    def principal_container_name(self, container_ref):
+        for name in container_ref['Names']:
             if '/' not in name[1:]:
                 return name[1:]
 
-    def container_ip(self, container):
-        return self._client.inspect_container(container)['NetworkSettings'][
+    def container_ip(self, container_ref):
+        return self._client.inspect_container(container_ref)['NetworkSettings'][
             'IPAddress']
 
-    def stop_container(self, container):
-        self._client.stop(container)
+    def stop_container(self, container_ref):
+        self._client.stop(container_ref)
 
-    def remove_container(self, container):
-        self._client.remove_container(container)
+    def remove_container(self, container_ref):
+        self._client.remove_container(container_ref)
 
     @exception_safe(OSError, None)
-    def execute(self, container, command):
+    def execute(self, container_ref, command):
         """
         Execute a command inside the container.
 
         NOTE: Needs the 'docker' binary installed in the host
         """
         cmd = ['docker', 'exec', '-it',
-               self.principal_container_name(container), command]
+               self.principal_container_name(container_ref), command]
         log.debug('Running command: "{}"'.format(' '.join(cmd)))
         p = subprocess.Popen(cmd, stderr=subprocess.STDOUT)
         p.wait()
 
-    def ssh(self, container):
-        self.execute(container, 'bash')
+    def ssh(self, container_ref):
+        self.execute(container_ref, 'bash')

@@ -7,7 +7,6 @@ import logging
 from StringIO import StringIO
 
 from os.path import isfile
-from midonet_sandbox.utils import Singleton
 
 log = logging.getLogger('midonet-sandbox.configuration')
 
@@ -18,7 +17,6 @@ DEFAULT_SETTINGS = {
 }
 
 
-@Singleton
 class Config(object):
     """
     Read and parse the configuration file. The configuration file format is:

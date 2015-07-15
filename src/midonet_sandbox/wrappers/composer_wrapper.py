@@ -10,10 +10,10 @@ import os
 from yaml import load, dump
 from midonet_sandbox.configuration import Config
 from midonet_sandbox.assets.assets import Assets
-
+from injector import inject, singleton
 log = logging.getLogger('midonet-sandbox.dockercomposer')
 
-
+@singleton
 class DockerComposer(object):
     """
     Wrapper around the docker-composer CLI
@@ -23,9 +23,11 @@ class DockerComposer(object):
         '$BASE': Assets.get_abs_base_components_path()
     }
 
-    def __init__(self):
-        self._config = Config.instance_or_die()
-        self._assets = Assets()
+    @inject(config=Config, assets=Assets)
+    def __init__(self, config, assets):
+        self._config = config
+        self._assets = assets
+
         # set the DOCKER_HOST env var to point docker specified in the config
         self._env = os.environ.copy()
         self._env['DOCKER_HOST'] = \
