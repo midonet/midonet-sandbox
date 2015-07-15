@@ -232,7 +232,9 @@ Typical uses of an override is to pass a new debian package and install it, or c
     $ cat /workplace/midonet-sandbox/venv/myoverride/midolman/override.sh                                          
     #!/bin/sh
     dpkg -i /override/midolman-master.deb
-    /run-midolman.sh
+    exec ./run-midolman.sh
+    
+**NOTE: if you call another script within your override to start an upstart service (e.g. run-midolman.sh calls /sbin/init to spawn any upstart service), do it through the *exec* command (not a regular invocation).**
 
 
 To apply an override to a sandbox you can use the --override parameter:

@@ -7,7 +7,7 @@ ONBUILD RUN apt-get -qy update
 ONBUILD RUN apt-get install -qy midolman zkdump
 
 RUN apt-get -qy update
-RUN apt-get install mz tcpdump nmap
+RUN apt-get -qy install git mz tcpdump nmap openjdk-7-jdk --no-install-recommends
 
 # Get pipework to allow arbitrary configurations on the container from the host
 # Might get included into docker-networking in the future
