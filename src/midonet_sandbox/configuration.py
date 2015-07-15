@@ -6,6 +6,7 @@ import ConfigParser
 import logging
 from StringIO import StringIO
 
+import os
 from os.path import isfile
 from midonet_sandbox.utils import Singleton
 
@@ -32,6 +33,7 @@ class Config(object):
 
     def __init__(self, config_file):
         self._config = ConfigParser.SafeConfigParser(defaults=DEFAULT_SETTINGS)
+        config_file = os.path.expanduser(config_file)
 
         if isfile(config_file):
             log.info('Loading configuration file: {}'.format(config_file))
