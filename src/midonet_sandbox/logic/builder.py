@@ -30,7 +30,6 @@ class Builder(object):
         """
         Build and optionally publish a docker image
         :param image: the image to build, eg "midolman:1.9"
-        :param publish: true if the image has to be published upstream
         :return:
         """
         log.info('Build started for {}'.format(image))
@@ -69,4 +68,4 @@ class Builder(object):
                 if (image not in images) or force_rebuild:
                     self.build(image)
                 else:
-                    log.info('{} image alredy exists. Skipping'.format(image))
+                    log.info('{} image already exists. Skipping'.format(image))

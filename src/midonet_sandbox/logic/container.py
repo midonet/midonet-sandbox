@@ -64,9 +64,9 @@ class Container(object):
     def ports(self, pretty=False):
         ports = self._container_ref['Ports']
 
-        def __format_ports(ports):
+        def __format_ports(port_list):
             ports_list = list()
-            for port in ports:
+            for port in port_list:
                 if 'PublicPort' in port:
                     ports_list.append(
                         '{}/{}->{}:{}'.format(port['Type'], port['PrivatePort'],

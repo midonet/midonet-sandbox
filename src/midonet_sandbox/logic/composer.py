@@ -1,9 +1,6 @@
 # Copyright (c) 2015 Midokura SARL, All Rights Reserved.
 #
 # @author: Antonio Sagliocco <antonio@midokura.com>, Midokura
-
-
-
 import logging
 import subprocess
 from collections import Counter
@@ -113,9 +110,6 @@ class Composer(object):
     def stop(self, sandboxes, remove=False):
         """
         Stop the running sandbox
-
-        :param sandbox:
-        :return:
         """
         running_sandboxes = self.list_running_sandbox()
 
@@ -174,21 +168,21 @@ class Composer(object):
                     components.append(definition['image'])
                 else:
 
-                    file = definition['extends']['file']
+                    extended = definition['extends']['file']
                     for var, value in self._composer.VARS.items():
-                        file = file.replace(var, value)
+                        extended = extended.replace(var, value)
                     service = definition['extends']['service']
-                    image = self._get_base_component_image(file, service)
+                    image = self._get_base_component_image(extended, service)
                     if image:
                         components.append(image)
 
         return Counter(components)
 
     @staticmethod
-    def _get_base_component_image(file, service):
+    def _get_base_component_image(yml, service):
         """
         """
-        with open(file, 'rb') as _f_yml:
+        with open(yml, 'rb') as _f_yml:
             component_content = load(_f_yml)
             for component, definition in component_content.items():
                 if component == service:

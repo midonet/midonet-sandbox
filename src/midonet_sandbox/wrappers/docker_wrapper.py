@@ -80,7 +80,8 @@ class Docker(object):
             if name == self.principal_container_name(container_ref):
                 return container_ref
 
-    def principal_container_name(self, container_ref):
+    @staticmethod
+    def principal_container_name(container_ref):
         for name in container_ref['Names']:
             if '/' not in name[1:]:
                 return name[1:]

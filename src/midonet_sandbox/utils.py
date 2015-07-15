@@ -8,6 +8,7 @@ from logging.handlers import WatchedFileHandler
 
 logger = logging.getLogger('midonet-sandbox')
 
+
 def configure_logging(loglevel, logfile=None):
     loglevel = loglevel.upper()
     loglevels = ('DEBUG', 'INFO', 'WARNING', 'ERROR')
@@ -35,7 +36,7 @@ def exception_safe(exception, return_value):
             try:
                 return func(*args, **kwds)
             except exception, e:
-                logger.error('A {} occured: {}'.format(exception, e))
+                logger.error('A {} occurred: {}'.format(exception, e))
                 return return_value
 
         return wrapper

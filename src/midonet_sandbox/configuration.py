@@ -45,7 +45,8 @@ class Config(object):
     def get_sandbox_value(self, param):
         return self._config.get('sandbox', param)
 
-    def dump_config(self, config):
+    @staticmethod
+    def dump_config(config):
         dump = StringIO()
         config.write(dump)
         return dump.getvalue()
