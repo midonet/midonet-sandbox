@@ -36,18 +36,27 @@ log = logging.getLogger('midonet-sandbox.main')
 
 def main():
     options = docopt(command_line)
-
     injector = get_injector(options)
+    dispatcher = injector.get(Dispatcher)
 
-    if options['--debug']:
-        configure_logging('debug')
-    else:
-        configure_logging('info')
+    dispatch(options, dispatcher)
+
+
+def dispatch(options, dispatcher):
+    if '--debug' in options:
+        if options['--debug']:
+            configure_logging('debug')
+        else:
+            configure_logging('info')
 
     log.debug('Base assets directory: {}'.format(BASE_ASSETS_PATH))
 
-    dispatcher = injector.get(Dispatcher)
+    action = _find_action(options)
+    if action and hasattr(dispatcher, action):
+        getattr(dispatcher, action)(options)
 
+
+def _find_action(options):
     actions = \
         filter(lambda opt: not opt.startswith('<') and not opt.startswith('-'),
                options.keys())
@@ -57,10 +66,7 @@ def main():
             action = action.replace('-', '_')
             if keyword.iskeyword(action):
                 action = '{}_'.format(action)
-
-            if hasattr(dispatcher, action):
-                getattr(dispatcher, action)(options)
-                break
+            return action
 
 
 if __name__ == '__main__':
