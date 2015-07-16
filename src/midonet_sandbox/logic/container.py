@@ -4,13 +4,24 @@
 
 import logging
 
+from injector import inject
 from midonet_sandbox.wrappers.docker_wrapper import Docker
-
-from midonet_sandbox.configuration import Config
 from midonet_sandbox.exceptions import ContainerNotFound
 from midonet_sandbox.utils import exception_safe
 
 log = logging.getLogger('midonet-sandbox.container')
+
+
+class ContainerBuilder(object):
+    @inject(docker=Docker)
+    def __init__(self, docker):
+        self._docker = docker
+
+    def for_name(self, name):
+        return Container(self._docker, name=name)
+
+    def for_container_ref(self, container_ref):
+        return Container(self._docker, container_ref=container_ref)
 
 
 class Container(object):
@@ -18,47 +29,44 @@ class Container(object):
     Simple container operations
     """
 
-    def __init__(self, container):
-        self._docker = Docker(
-            Config.instance_or_die().get_sandbox_value('docker_socket'))
-        self._container = container
-
-    @classmethod
     @exception_safe(ContainerNotFound, None)
-    def for_name(cls, name):
-        docker = Docker(
-            Config.instance_or_die().get_sandbox_value('docker_socket'))
+    def __init__(self, docker, container_ref=None, name=None):
 
-        container = docker.container_by_name(name)
-        if not container:
-            raise ContainerNotFound('Container {} not found'.format(name))
+        assert bool(container_ref) ^ bool(name)
 
-        return cls(container)
+        self._docker = docker
+
+        if name:
+            container_ref = docker.container_by_name(name)
+            if not container_ref:
+                raise ContainerNotFound('Container {} not found'.format(name))
+
+        self._container_ref = container_ref
 
     def execute(self, command):
-        self._docker.execute(self._container, command)
+        self._docker.execute(self._container_ref, command)
 
     def ssh(self):
-        self._docker.ssh(self._container)
+        self._docker.ssh(self._container_ref)
 
     @property
     def name(self):
-        return self._docker.principal_container_name(self._container)
+        return self._docker.principal_container_name(self._container_ref)
 
     @property
     def ip(self):
-        return self._docker.container_ip(self._container)
+        return self._docker.container_ip(self._container_ref)
 
     @property
     def image(self):
-        return self._container['Image']
+        return self._container_ref['Image']
 
     def ports(self, pretty=False):
-        ports = self._container['Ports']
+        ports = self._container_ref['Ports']
 
-        def __format_ports(ports):
+        def __format_ports(port_list):
             ports_list = list()
-            for port in ports:
+            for port in port_list:
                 if 'PublicPort' in port:
                     ports_list.append(
                         '{}/{}->{}:{}'.format(port['Type'], port['PrivatePort'],

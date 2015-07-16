@@ -10,10 +10,12 @@ import os
 from yaml import load, dump
 from midonet_sandbox.configuration import Config
 from midonet_sandbox.assets.assets import Assets
+from injector import inject, singleton
 
 log = logging.getLogger('midonet-sandbox.dockercomposer')
 
 
+@singleton
 class DockerComposer(object):
     """
     Wrapper around the docker-composer CLI
@@ -23,9 +25,11 @@ class DockerComposer(object):
         '$BASE': Assets.get_abs_base_components_path()
     }
 
-    def __init__(self):
-        self._config = Config.instance_or_die()
-        self._assets = Assets()
+    @inject(config=Config, assets=Assets)
+    def __init__(self, config, assets):
+        self._config = config
+        self._assets = assets
+
         # set the DOCKER_HOST env var to point docker specified in the config
         self._env = os.environ.copy()
         self._env['DOCKER_HOST'] = \
@@ -77,7 +81,8 @@ class DockerComposer(object):
         temp_yml.write(content)
         return temp_yml.name
 
-    def _apply_override(self, yml_file, override):
+    @staticmethod
+    def _apply_override(yml_file, override):
         """
         Apply the override patch to the yml file and return a new yml file
         :param yml_file: the original flavour description
@@ -112,7 +117,8 @@ class DockerComposer(object):
         dump(yml_content, temp_yml)
         return temp_yml.name
 
-    def _replace_relative_paths(self, yml_file, tmp_yml):
+    @staticmethod
+    def _replace_relative_paths(yml_file, tmp_yml):
         """
         Replace the relative paths in the temp file to abs path that refers
         to the original yml base path
@@ -123,10 +129,10 @@ class DockerComposer(object):
             yml_content = load(_f_yml)
             for component, definition in yml_content.items():
                 if 'extends' in definition:
-                    file = definition['extends']['file']
-                    if not os.path.isabs(file):
+                    extended = definition['extends']['file']
+                    if not os.path.isabs(extended):
                         definition['extends']['file'] = os.path.join(local_path,
-                                                                     file)
+                                                                     extended)
 
         temp_yml = tempfile.NamedTemporaryFile(suffix='.yml', delete=False)
         dump(yml_content, temp_yml)

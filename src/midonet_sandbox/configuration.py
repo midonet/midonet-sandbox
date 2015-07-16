@@ -8,7 +8,6 @@ from StringIO import StringIO
 
 import os
 from os.path import isfile
-from midonet_sandbox.utils import Singleton
 
 log = logging.getLogger('midonet-sandbox.configuration')
 
@@ -19,7 +18,6 @@ DEFAULT_SETTINGS = {
 }
 
 
-@Singleton
 class Config(object):
     """
     Read and parse the configuration file. The configuration file format is:
@@ -49,7 +47,8 @@ class Config(object):
     def get_sandbox_value(self, param):
         return self._config.get('sandbox', param)
 
-    def dump_config(self, config):
+    @staticmethod
+    def dump_config(config):
         dump = StringIO()
         config.write(dump)
         return dump.getvalue()
