@@ -131,8 +131,11 @@ class DockerComposer(object):
                 if 'extends' in definition:
                     extended = definition['extends']['file']
                     if not os.path.isabs(extended):
-                        definition['extends']['file'] = os.path.join(local_path,
-                                                                     extended)
+                        abs_path = os.path.join(local_path, extended)
+                        log.debug('Replacing relative path {} with {}'.format(
+                            extended, abs_path
+                        ))
+                        definition['extends']['file'] = abs_path
 
         temp_yml = tempfile.NamedTemporaryFile(suffix='.yml', delete=False)
         dump(yml_content, temp_yml)
