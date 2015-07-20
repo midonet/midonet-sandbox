@@ -97,20 +97,26 @@ class DockerComposer(object):
                 service = None
                 if 'extends' in definition:
                     service = definition['extends']['service']
-                if service in components:
 
+                if service in components:
                     override_path = os.path.join(override, service)
                     if not override_path.endswith('/'):
                         override_path = '{}/'.format(override_path)
 
                     volume = '{}:/override:ro'.format(override_path)
+                    log.debug(
+                        'Mounting /override for {} to {}'.format(service,
+                                                                 override_path))
 
                     if 'volumes' in definition:
                         definition['volumes'].append(volume)
                     else:
                         definition['volumes'] = [volume]
 
-                    definition['command'] = '/override/override.sh'
+                    cmd = '/override/override.sh'
+                    log.debug(
+                        'Setting command for {} to {}'.format(service, cmd))
+                    definition['command'] = cmd
 
         temp_yml = tempfile.NamedTemporaryFile(suffix='.yml', delete=False)
 
