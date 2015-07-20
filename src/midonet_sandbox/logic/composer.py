@@ -9,6 +9,7 @@ import os
 from injector import inject, singleton
 from requests.exceptions import ConnectionError
 from yaml import load
+from midonet_sandbox.configuration import Config
 from midonet_sandbox.assets.assets import Assets
 from midonet_sandbox.exceptions import FlavourNotFound
 from midonet_sandbox.logic.container import ContainerBuilder
@@ -26,9 +27,10 @@ class Composer(object):
 
     SANDBOX_PREFIX = 'mnsandbox'
 
-    @inject(docker=Docker, assets=Assets, composer=DockerComposer,
-            container_builder=ContainerBuilder)
-    def __init__(self, docker, assets, composer, container_builder):
+    @inject(config=Config, docker=Docker, assets=Assets,
+            composer=DockerComposer, container_builder=ContainerBuilder)
+    def __init__(self, config, docker, assets, composer, container_builder):
+        self._config = config
         self._assets = assets
         self._docker = docker
         self._composer = composer
@@ -173,15 +175,22 @@ class Composer(object):
                         extended = extended.replace(var, value)
                     service = definition['extends']['service']
                     image = self._get_base_component_image(extended, service)
+                    if ':' not in image:
+                        image = '{}:master'.format(image)
                     if image:
                         components.append(image)
 
         return Counter(components)
 
-    @staticmethod
-    def _get_base_component_image(yml, service):
+    def _get_base_component_image(self, yml, service):
         """
         """
+        # If it's a relative path, search for it in the extra flavours directory
+        if not os.path.isabs(yml):
+            extra_flavours = self._config.get_sandbox_value('extra_flavours')
+            if extra_flavours:
+                yml = os.path.join(extra_flavours, yml)
+
         with open(yml, 'rb') as _f_yml:
             component_content = load(_f_yml)
             for component, definition in component_content.items():
