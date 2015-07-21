@@ -7,3 +7,4 @@ dist/
 .vagrant
 Vagrantfile
 *.cfg
+.tox
