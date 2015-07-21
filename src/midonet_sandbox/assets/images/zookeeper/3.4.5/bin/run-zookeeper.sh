@@ -17,8 +17,12 @@ echo "${ZOO_ID}" > /var/lib/zookeeper/myid
 
 # Check if this is the last zookeeper and
 # should update linked hosts in conf
+
+# Remove stale configuration (in case of stopped/starded container)
+rm /zoo/conf/zoo.cfg
+
 if [[ `env | grep _PORT_2888_TCP_ADDR` ]]; then
-    MIDO_ZOOKEEPER_HOSTS="$(env | grep _PORT_2888_TCP_ADDR | sed -e 's/.*_PORT_2888_TCP_ADDR=//g')"
+    MIDO_ZOOKEEPER_HOSTS="$(env | grep _PORT_2888_TCP_ADDR | sed -e 's/.*_PORT_2888_TCP_ADDR=//g' | sort -u)"
     for ZK_HOST in $MIDO_ZOOKEEPER_HOSTS; do
         n=$((++n)) && echo "server.$n=$ZK_HOST:2888:3888" >> /tmp/zoo.cfg
     done
@@ -26,15 +30,14 @@ if [[ `env | grep _PORT_2888_TCP_ADDR` ]]; then
     cat /tmp/zoo.cfg >> /zoo/conf/zoo.cfg
 fi
 
-if [ ! -f /conf/zoo.cfg ] ; then
-    echo 'Waiting for config file to appear...'
-    while [ ! -f /zoo/conf/zoo.cfg ] ; do
-        sleep 1
-    done
-    echo 'Config file found, starting server.'
-fi
+echo 'Waiting for config file to appear...'
+while [ ! -f /zoo/conf/zoo.cfg ] ; do
+    sleep 1
+done
+echo 'Config file found, starting server.'
 
 cat /zoo/conf/zoo.cfg >> /etc/zookeeper/conf/zoo.cfg
 echo "Servers in the QUORUM:"
 cat /etc/zookeeper/conf/zoo.cfg
-/usr/share/zookeeper/bin/zkServer.sh start-foreground
+
+exec /sbin/init

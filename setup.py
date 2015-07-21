@@ -11,10 +11,6 @@ SRC_DIR = "src"
 MODULE_NAME = "midonet_sandbox"
 __version__ = 1.0
 
-with open('./requirements.txt') as reqs_txt:
-    requirements = [line for line in reqs_txt]
-
-
 def assets():
     assets_path = \
         os.path.join(os.path.dirname(__file__), SRC_DIR, MODULE_NAME, 'assets')
@@ -27,9 +23,6 @@ def assets():
 
     return assets_list
 
-# with open('./test-requirements.txt') as test_reqs_txt:
-# test_requirements = [line for line in test_reqs_txt]
-
 setup(
     name=MODULE_NAME,
     version=__version__,
@@ -38,10 +31,13 @@ setup(
     package_dir={"": SRC_DIR},
     packages=find_packages(SRC_DIR, exclude=["tests"]),
     package_data={'': assets()},
-    install_requires=requirements,
-    # tests_require=test_requirements,
+    install_requires=['docker-compose==1.3.1',
+                      'docopt==0.6.2',
+                      'tabulate==0.7.5',
+                      'humanize==0.5.1',
+                      'PyYAML==3.11',
+                      'injector==0.9.1'],
     zip_safe=False,
-    # test_suite='tests',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Other Environment',

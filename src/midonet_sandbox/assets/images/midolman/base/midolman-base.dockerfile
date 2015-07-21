@@ -4,9 +4,21 @@ MAINTAINER MidoNet (http://midonet.org)
 ONBUILD ADD conf/midonet.list /etc/apt/sources.list.d/midonet.list
 ONBUILD RUN curl -k http://repo.midonet.org/packages.midokura.key | apt-key add -
 ONBUILD RUN apt-get -qy update
-ONBUILD RUN apt-get install -qqy midolman zkdump
+ONBUILD RUN apt-get install -qy midolman zkdump
 
-RUN apt-get update && apt-get install -qqy curl
+RUN apt-get -qy update
+RUN apt-get -qy install git mz tcpdump nmap openjdk-7-jdk --no-install-recommends
+
+# Get pipework to allow arbitrary configurations on the container from the host
+# Might get included into docker-networking in the future
+RUN git clone http://github.com/jpetazzo/pipework /pipework
+RUN mv /pipework/pipework /usr/bin/pipework
+
+# Workaround to circumvent limitations with AppArmor profiles and docker
+RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
+RUN mv /sbin/dhclient /usr/bin/dhclient
+
+RUN apt-get update && apt-get install -qy curl && apt-get install -qy git
 
 ADD bin/run-midolman.sh /run-midolman.sh
 CMD ["/run-midolman.sh"]

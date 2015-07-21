@@ -2,6 +2,7 @@
 #
 # @author: Antonio Sagliocco <antonio@midokura.com>, Midokura
 
+
 class Sandbox(Exception):
     pass
 
@@ -11,4 +12,8 @@ class ImageNotFound(Sandbox):
 
 
 class FlavourNotFound(Sandbox):
+    pass
+
+
+class ContainerNotFound(Sandbox):
     pass

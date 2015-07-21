@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM ubuntu-upstart:14.04
 MAINTAINER MidoNet (http://midonet.org)
 
 ONBUILD ADD conf/midonet.list /etc/apt/sources.list.d/midonet.list

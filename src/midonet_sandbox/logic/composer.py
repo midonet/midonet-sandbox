@@ -1,39 +1,51 @@
 # Copyright (c) 2015 Midokura SARL, All Rights Reserved.
 #
 # @author: Antonio Sagliocco <antonio@midokura.com>, Midokura
-
-
-
 import logging
+import subprocess
 from collections import Counter
 
 import os
+from injector import inject, singleton
 from requests.exceptions import ConnectionError
 from yaml import load
-from midonet_sandbox.assets.assets import Assets
 from midonet_sandbox.configuration import Config
+from midonet_sandbox.assets.assets import Assets
+from midonet_sandbox.exceptions import FlavourNotFound
+from midonet_sandbox.logic.container import ContainerBuilder
 from midonet_sandbox.utils import exception_safe
-from midonet_sandbox.wrappers.composer_wrapper import DockerComposer
 from midonet_sandbox.wrappers.docker_wrapper import Docker
+from midonet_sandbox.wrappers.composer_wrapper import DockerComposer
 
 log = logging.getLogger('midonet-sandbox.composer')
 
 
+@singleton
 class Composer(object):
     """
     """
 
     SANDBOX_PREFIX = 'mnsandbox'
 
-    def __init__(self):
-        configuration = Config.instance_or_die()
-        self._assets = Assets()
-        self._docker = Docker(configuration.get_sandbox_value('docker_socket'))
-        self._composer = DockerComposer()
+    @inject(config=Config, docker=Docker, assets=Assets,
+            composer=DockerComposer, container_builder=ContainerBuilder)
+    def __init__(self, config, docker, assets, composer, container_builder):
+        self._config = config
+        self._assets = assets
+        self._docker = docker
+        self._composer = composer
+        self._container_builder = container_builder
 
     @exception_safe(ConnectionError, None)
-    def run(self, flavour, name, force, override):
-
+    def run(self, flavour, name, force=False, override=None, provision=None):
+        """
+        :param flavour: The flavour name
+        :param name: The sandbox name
+        :param force: Force restarting without asking
+        :param override: An override path
+        :param provision: A provisioning script path
+        :return: True if the sandbox has been started, False otherwise
+        """
         message = 'Spawning {} sandbox'.format(flavour)
         if override:
             message += ' with override {}'.format(override)
@@ -60,6 +72,19 @@ class Composer(object):
                                   '{}{}'.format(self.SANDBOX_PREFIX, name),
                                   override)
             composer.wait()
+
+            if provision:
+                provision = os.path.abspath(provision)
+                if os.path.isfile(provision) and os.access(provision, os.X_OK):
+                    log.info(
+                        'Running provisioning script: {}'.format(provision))
+                    p = subprocess.Popen(provision, stderr=subprocess.STDOUT)
+                    p.wait()
+                else:
+                    log.error(
+                        'File {} does not exist or it\'s not executable'.format(
+                            provision
+                        ))
             return True
 
         return False
@@ -69,21 +94,17 @@ class Composer(object):
         return container_name.split('_')[0].replace(Composer.SANDBOX_PREFIX,
                                                     '').replace('/', '')
 
-    @staticmethod
-    def __get_service_name(container_name):
-        return '_'.join(container_name.split('_')[1:])
-
     @exception_safe(ConnectionError, [])
     def list_running_sandbox(self):
         """
         List all the running sandbox
         :return: The list of all the running sandbox
         """
-
         sandoxes = set()
         containers = self._docker.list_containers(self.SANDBOX_PREFIX)
-        for container in containers:
-            sandoxes.add(self.__get_sandbox_name(container['Names'][0]))
+        for container_ref in containers:
+            container = self._container_builder.for_container_ref(container_ref)
+            sandoxes.add(self.__get_sandbox_name(container.name))
 
         return sandoxes
 
@@ -91,11 +112,7 @@ class Composer(object):
     def stop(self, sandboxes, remove=False):
         """
         Stop the running sandbox
-
-        :param sandbox:
-        :return:
         """
-
         running_sandboxes = self.list_running_sandbox()
 
         for sandbox in sandboxes:
@@ -106,30 +123,18 @@ class Composer(object):
             containers = self._docker.list_containers(
                 '{}{}_'.format(self.SANDBOX_PREFIX, sandbox))
 
-            for container in containers:
-                service_name = self.__get_service_name(container['Names'][0])
+            for container_ref in containers:
+                container = self._container_builder.for_container_ref(
+                    container_ref)
+                service_name = container.service_name
                 log.info('Sandbox {} - Stopping container {}'.format(sandbox,
                                                                      service_name))
-                self._docker.stop_container(container)
+                self._docker.stop_container(container_ref)
                 if remove:
                     log.info('Sandbox {} - Removing '
                              'container {}'.format(sandbox, service_name))
 
-                    self._docker.remove_container(container)
-
-    @staticmethod
-    def __format_ports(ports):
-        ports_list = list()
-        for port in ports:
-            if 'PublicPort' in port:
-                ports_list.append(
-                    '{}/{}->{}:{}'.format(port['Type'], port['PrivatePort'],
-                                          port['IP'], port['PublicPort']))
-            else:
-                ports_list.append(
-                    '{}/{}'.format(port['Type'], port['PrivatePort']))
-
-        return ','.join(sorted(ports_list))
+                    self._docker.remove_container(container_ref)
 
     @exception_safe(ConnectionError, [])
     def get_sandbox_detail(self, sandbox):
@@ -139,18 +144,20 @@ class Composer(object):
         :return:
         """
         containers = list()
-        for container in self._docker.list_containers(
+        for container_ref in self._docker.list_containers(
                 '{}{}_'.format(self.SANDBOX_PREFIX, sandbox)):
 
-            ip = self._docker.container_ip(container)
-            name = container['Names'][0].replace('/', '')
-            image = container['Image']
-            ports = self.__format_ports(container['Ports'])
+            container = self._container_builder.for_container_ref(container_ref)
+            ip = container.ip
+            name = container.name
+            image = container.image
+            ports = container.ports(pretty=True)
 
             containers.append([sandbox, name, image, ports, ip])
 
         return containers
 
+    @exception_safe(FlavourNotFound, dict())
     def get_components_by_flavour(self, flavour):
         """
         """
@@ -163,21 +170,28 @@ class Composer(object):
                     components.append(definition['image'])
                 else:
 
-                    file = definition['extends']['file']
+                    extended = definition['extends']['file']
                     for var, value in self._composer.VARS.items():
-                        file = file.replace(var, value)
+                        extended = extended.replace(var, value)
                     service = definition['extends']['service']
-                    image = self._get_base_component_image(file, service)
+                    image = self._get_base_component_image(extended, service)
+                    if ':' not in image:
+                        image = '{}:master'.format(image)
                     if image:
                         components.append(image)
 
         return Counter(components)
 
-    @staticmethod
-    def _get_base_component_image(file, service):
+    def _get_base_component_image(self, yml, service):
         """
         """
-        with open(file, 'rb') as _f_yml:
+        # If it's a relative path, search for it in the extra flavours directory
+        if not os.path.isabs(yml):
+            extra_flavours = self._config.get_sandbox_value('extra_flavours')
+            if extra_flavours:
+                yml = os.path.join(extra_flavours, yml)
+
+        with open(yml, 'rb') as _f_yml:
             component_content = load(_f_yml)
             for component, definition in component_content.items():
                 if component == service:

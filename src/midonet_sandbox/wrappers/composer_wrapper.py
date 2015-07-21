@@ -10,9 +10,12 @@ import os
 from yaml import load, dump
 from midonet_sandbox.configuration import Config
 from midonet_sandbox.assets.assets import Assets
+from injector import inject, singleton
 
 log = logging.getLogger('midonet-sandbox.dockercomposer')
 
+
+@singleton
 class DockerComposer(object):
     """
     Wrapper around the docker-composer CLI
@@ -22,13 +25,15 @@ class DockerComposer(object):
         '$BASE': Assets.get_abs_base_components_path()
     }
 
-    def __init__(self):
-        self._config = Config.instance_or_die()
-        self._assets = Assets()
+    @inject(config=Config, assets=Assets)
+    def __init__(self, config, assets):
+        self._config = config
+        self._assets = assets
+
         # set the DOCKER_HOST env var to point docker specified in the config
         self._env = os.environ.copy()
-        self._env['DOCKER_HOST'] = self._config.get_sandbox_value(
-            'docker_socket')
+        self._env['DOCKER_HOST'] = \
+            self._config.get_sandbox_value('docker_socket')
 
     def up(self, yml_file, name, override=None):
         """
@@ -39,12 +44,14 @@ class DockerComposer(object):
         :return: the process output
         """
 
-        final_yml = self._apply_substitutions(yml_file)
+        temp_yml = self._apply_substitutions(yml_file)
 
         if override:
-            final_yml = self._apply_override(final_yml, override)
+            temp_yml = self._apply_override(temp_yml, override)
 
-        command = ['docker-compose', '-f', final_yml, '-p', name, 'up', '-d']
+        temp_yml = self._replace_relative_paths(yml_file, temp_yml)
+
+        command = ['docker-compose', '-f', temp_yml, '-p', name, 'up', '-d']
         log.debug('Running external process: {}'.format(' '.join(command)))
 
         return subprocess.Popen(command, stderr=subprocess.STDOUT,
@@ -74,7 +81,8 @@ class DockerComposer(object):
         temp_yml.write(content)
         return temp_yml.name
 
-    def _apply_override(self, yml_file, override):
+    @staticmethod
+    def _apply_override(yml_file, override):
         """
         Apply the override patch to the yml file and return a new yml file
         :param yml_file: the original flavour description
@@ -86,23 +94,55 @@ class DockerComposer(object):
         with open(yml_file, 'rb') as _f_yml:
             yml_content = load(_f_yml)
             for component, definition in yml_content.items():
-                service = definition['extends']['service']
-                if service in components:
+                service = None
+                if 'extends' in definition:
+                    service = definition['extends']['service']
 
+                if service in components:
                     override_path = os.path.join(override, service)
                     if not override_path.endswith('/'):
                         override_path = '{}/'.format(override_path)
 
                     volume = '{}:/override:ro'.format(override_path)
+                    log.debug(
+                        'Mounting /override for {} to {}'.format(service,
+                                                                 override_path))
 
                     if 'volumes' in definition:
                         definition['volumes'].append(volume)
                     else:
                         definition['volumes'] = [volume]
 
-                    definition['command'] = '/override/override.sh'
+                    cmd = '/override/override.sh'
+                    log.debug(
+                        'Setting command for {} to {}'.format(service, cmd))
+                    definition['command'] = cmd
 
         temp_yml = tempfile.NamedTemporaryFile(suffix='.yml', delete=False)
 
+        dump(yml_content, temp_yml)
+        return temp_yml.name
+
+    @staticmethod
+    def _replace_relative_paths(yml_file, tmp_yml):
+        """
+        Replace the relative paths in the temp file to abs path that refers
+        to the original yml base path
+        """
+        local_path = os.path.split(yml_file)[0]
+
+        with open(tmp_yml, 'rb') as _f_yml:
+            yml_content = load(_f_yml)
+            for component, definition in yml_content.items():
+                if 'extends' in definition:
+                    extended = definition['extends']['file']
+                    if not os.path.isabs(extended):
+                        abs_path = os.path.join(local_path, extended)
+                        log.debug('Replacing relative path {} with {}'.format(
+                            extended, abs_path
+                        ))
+                        definition['extends']['file'] = abs_path
+
+        temp_yml = tempfile.NamedTemporaryFile(suffix='.yml', delete=False)
         dump(yml_content, temp_yml)
         return temp_yml.name

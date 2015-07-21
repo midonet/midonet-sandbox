@@ -3,11 +3,11 @@
 # @author: Antonio Sagliocco <antonio@midokura.com>, Midokura
 
 import logging
-import os
+import subprocess
 
+import os
 from docker import Client
 from requests.exceptions import ConnectionError
-
 from midonet_sandbox.utils import exception_safe
 
 log = logging.getLogger('midonet-sandbox.docker')
@@ -29,12 +29,13 @@ class Docker(object):
         log.debug('Invoking docker build on {}'.format(dockerfile))
 
         response = self._client.build(path=os.path.dirname(dockerfile),
-                                      tag=image, pull=False, rm=True,
+                                      tag=image, pull=False, rm=False,
                                       dockerfile=os.path.basename(dockerfile))
 
         for line in response:
-            print eval(line)['stream'],
-
+            eval_line = eval(line)
+            if 'stream' in eval_line:
+                print(eval_line['stream']),
 
     @exception_safe(ConnectionError, [])
     def list_images(self, prefix=None):
@@ -65,20 +66,48 @@ class Docker(object):
         containers = self._client.containers()
         filtered = list()
         if prefix:
-            for container in containers:
-                if prefix in container['Names'][0]:
-                    filtered.append(container)
+            for container_ref in containers:
+                if prefix in container_ref['Names'][0]:
+                    filtered.append(container_ref)
 
             containers = filtered
 
         return containers
 
-    def container_ip(self, container):
-        return self._client.inspect_container(container)['NetworkSettings'][
+    def container_by_name(self, name):
+        containers = self.list_containers()
+        for container_ref in containers:
+            if name == self.principal_container_name(container_ref):
+                return container_ref
+
+    @staticmethod
+    def principal_container_name(container_ref):
+        for name in container_ref['Names']:
+            if '/' not in name[1:]:
+                return name[1:]
+
+    def container_ip(self, container_ref):
+        return self._client.inspect_container(container_ref)['NetworkSettings'][
             'IPAddress']
 
-    def stop_container(self, container):
-        self._client.stop(container)
+    def stop_container(self, container_ref):
+        self._client.stop(container_ref)
 
-    def remove_container(self, container):
-        self._client.remove_container(container)
+    def remove_container(self, container_ref):
+        self._client.remove_container(container_ref)
+
+    @exception_safe(OSError, None)
+    def execute(self, container_ref, command):
+        """
+        Execute a command inside the container.
+
+        NOTE: Needs the 'docker' binary installed in the host
+        """
+        cmd = ['docker', 'exec', '-it',
+               self.principal_container_name(container_ref), command]
+        log.debug('Running command: "{}"'.format(' '.join(cmd)))
+        p = subprocess.Popen(cmd, stderr=subprocess.STDOUT)
+        p.wait()
+
+    def ssh(self, container_ref):
+        self.execute(container_ref, 'bash')

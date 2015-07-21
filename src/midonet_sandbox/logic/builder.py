@@ -4,34 +4,35 @@
 
 import logging
 
+from injector import inject, singleton
+
 from midonet_sandbox.wrappers.docker_wrapper import Docker
 from midonet_sandbox.assets.assets import Assets
 from midonet_sandbox.exceptions import ImageNotFound
-from midonet_sandbox.configuration import Config
 from midonet_sandbox.logic.composer import Composer
 
 log = logging.getLogger('midonet-sandbox.builder')
 
 
+@singleton
 class Builder(object):
     """
     Build and optionally publish a docker image
     """
 
-    def __init__(self):
-        configuration = Config.instance_or_die()
-        self._docker = Docker(configuration.get_sandbox_value('docker_socket'))
-        self._assets = Assets()
-        self._composer = Composer()
+    @inject(docker=Docker, composer=Composer, assets=Assets)
+    def __init__(self, docker, composer, assets):
+        self._docker = docker
+        self._assets = assets
+        self._composer = composer
 
-    def build(self, image, publish=False):
+    def build(self, image):
         """
         Build and optionally publish a docker image
         :param image: the image to build, eg "midolman:1.9"
-        :param publish: true if the image has to be published upstream
         :return:
         """
-        log.info('Build started for {}, publish is {}'.format(image, publish))
+        log.info('Build started for {}'.format(image))
 
         name, tag = image.split(':')
 
@@ -52,15 +53,19 @@ class Builder(object):
         except ImageNotFound:
             log.error('Image {} not found, build aborted'.format(image))
 
-            # TODO - publication
-
-    def build_all(self, flavour):
+    def build_all(self, flavour, force_rebuild):
         components = self._composer.get_components_by_flavour(flavour)
         components = components.keys()
         components = [c.replace('sandbox/', '') for c in components]
+        images = [','.join(image['RepoTags']).replace('sandbox/', '') for image
+                  in self._docker.list_images('sandbox/')]
 
-        log.info('Building the following components: '
-                 '{}'.format(', '.join(components)))
+        if components:
+            log.info('Building the following components: '
+                     '{}'.format(', '.join(components)))
 
-        for image in components:
-            self.build(image)
+            for image in components:
+                if (image not in images) or force_rebuild:
+                    self.build(image)
+                else:
+                    log.info('{} image already exists. Skipping'.format(image))
