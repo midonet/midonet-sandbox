@@ -6,9 +6,9 @@
 for IFACE in `env | grep -Ev "MIDOLMAN" | grep _IFACE | cut -d= -f2`; do
     # TODO: change pipework by native docker networking once stable
     echo "Waiting for interface $IFACE to be up through pipework"
-        timeout 10s pipework --wait -i $IFACE
+        timeout 60s pipework --wait -i $IFACE
         if [ $? -eq 124 ]; then
-            echo "Interface $IFACE was not ready after 10s. Exiting..."
+            echo "Interface $IFACE was not ready after 60s. Exiting..."
             exit 1
         fi
 done

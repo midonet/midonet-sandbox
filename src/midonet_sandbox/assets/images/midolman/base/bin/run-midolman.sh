@@ -6,9 +6,9 @@
 for IFACE in `env | grep _IFACE | cut -d= -f2`; do
     # TODO: change pipework by native docker networking once stable
     echo "Waiting for interface $IFACE to be up"
-    timeout 10s pipework --wait -i $IFACE
+    timeout 60s pipework --wait -i $IFACE
     if [ $? -eq 124 ]; then
-        echo "Interface $IFACE was not ready after 10s. Exiting..."
+        echo "Interface $IFACE was not ready after 60s. Exiting..."
         exit 1
     fi
 done
@@ -66,6 +66,7 @@ cassandra.cluster=midonet
 agent.midolman.bgp_keepalive=1s
 agent.midolman.bgp_holdtime=3s
 agent.midolman.bgp_connect_retry=1s
+agent.midolman.lock_memory=false
 agent.loggers.root=DEBUG
 agent.haproxy_health_monitor.namespace_cleanup=true
 agent.haproxy_health_monitor.health_monitor_enable=true
