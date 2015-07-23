@@ -15,7 +15,7 @@ ADD bin/run-midonetapi.sh /run-midonetapi.sh
 ADD conf/midonetrc /root/.midonetrc
 
 # Expose port for other processes
-EXPOSE 8080
+EXPOSE 8080 8459 8460
 
 # Run midonet-api script by default
 CMD ["/run-midonetapi.sh"]
