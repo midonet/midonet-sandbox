@@ -37,6 +37,8 @@ done
 echo 'Config file found, starting server.'
 
 cat /zoo/conf/zoo.cfg >> /etc/zookeeper/conf/zoo.cfg
+echo "forceSync=no" >> /etc/zookeeper/conf/zoo.cfg
+
 echo "Servers in the QUORUM:"
 cat /etc/zookeeper/conf/zoo.cfg
 
