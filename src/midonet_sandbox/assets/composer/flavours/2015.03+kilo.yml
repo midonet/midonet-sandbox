@@ -35,13 +35,13 @@ cassandra1:
   extends:
     file: $BASE/cassandra.yml
     service: cassandra
-  image: sandbox/cassandra:2.0.10
+  image: sandbox/cassandra:2.0
 
 cassandra2:
   extends:
     file: $BASE/cassandra.yml
     service: cassandra
-  image: sandbox/cassandra:2.0.10
+  image: sandbox/cassandra:2.0
   links:
   - cassandra1:cs1
 
