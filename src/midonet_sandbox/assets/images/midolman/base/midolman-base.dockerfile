@@ -7,7 +7,13 @@ ONBUILD RUN apt-get -qy update
 ONBUILD RUN apt-get install -qy midolman zkdump
 
 RUN apt-get -qy update
-RUN apt-get -qy install git mz tcpdump nmap openjdk-7-jdk --no-install-recommends
+RUN apt-get -qy install git mz tcpdump nmap --no-install-recommends
+
+# Install Zulu Java 8
+RUN apt-get install -qy software-properties-common
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0x219BD9C9
+RUN apt-add-repository 'deb http://repos.azulsystems.com/ubuntu stable main'
+RUN apt-get update && apt-get install -qy zulu-8
 
 # Get pipework to allow arbitrary configurations on the container from the host
 # Might get included into docker-networking in the future
