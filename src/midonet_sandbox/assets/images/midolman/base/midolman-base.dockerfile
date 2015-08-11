@@ -27,4 +27,8 @@ RUN mv /sbin/dhclient /usr/bin/dhclient
 RUN apt-get update && apt-get install -qy curl && apt-get install -qy git
 
 ADD bin/run-midolman.sh /run-midolman.sh
+
+# Expose bgpd port in case it's a gateway
+EXPOSE 179
+
 CMD ["/run-midolman.sh"]
