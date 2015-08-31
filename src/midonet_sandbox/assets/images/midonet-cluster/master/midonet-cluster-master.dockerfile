@@ -1,2 +1,2 @@
-FROM sandbox/midonet-api:base
+FROM sandbox/midonet-cluster:base
 MAINTAINER MidoNet (http://midonet.org)

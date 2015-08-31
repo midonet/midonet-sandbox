@@ -63,12 +63,12 @@ midolman:
   - "cassandra1:cs1"
   - "cassandra2:cs2"
 
-api:
+cluster:
   extends:
-    file: $BASE/midonet-api.yml
-    service: api
-  image: sandbox/midonet-api:master
-  hostname: api
+    file: $BASE/midonet-cluster.yml
+    service: cluster
+  image: sandbox/midonet-cluster:master
+  hostname: cluster
   links:
   - "zookeeper1:zk1"
   - "zookeeper2:zk2"
