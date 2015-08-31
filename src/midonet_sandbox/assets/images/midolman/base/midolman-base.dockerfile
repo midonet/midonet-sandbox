@@ -2,9 +2,11 @@ FROM ubuntu-upstart:14.04
 MAINTAINER MidoNet (http://midonet.org)
 
 ONBUILD ADD conf/midonet.list /etc/apt/sources.list.d/midonet.list
+ONBUILD ADD bin/run-midolman.sh /run-midolman.sh
+
 ONBUILD RUN curl -k http://repo.midonet.org/packages.midokura.key | apt-key add -
 ONBUILD RUN apt-get -qy update
-ONBUILD RUN apt-get install -qy midolman zkdump
+ONBUILD RUN apt-get install -qy midolman zkdump python-setproctitle
 
 RUN apt-get -qy update
 RUN apt-get -qy install git mz tcpdump nmap --no-install-recommends
@@ -25,8 +27,6 @@ RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
 RUN mv /sbin/dhclient /usr/bin/dhclient
 
 RUN apt-get update && apt-get install -qy curl && apt-get install -qy git
-
-ADD bin/run-midolman.sh /run-midolman.sh
 
 # Expose bgpd port in case it's a gateway
 EXPOSE 179
