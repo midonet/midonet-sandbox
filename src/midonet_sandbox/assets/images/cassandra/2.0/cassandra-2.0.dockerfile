@@ -4,6 +4,7 @@ MAINTAINER MidoNet (http://midonet.org)
 # Configure cassandra repos
 RUN echo "deb http://debian.datastax.com/community 2.0 main" > /etc/apt/sources.list.d/cassandra.list
 
+RUN apt-get update
 RUN apt-get install -qqy curl
 RUN curl -L http://debian.datastax.com/debian/repo_key | apt-key add -
 
