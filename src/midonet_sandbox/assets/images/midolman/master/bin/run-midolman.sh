@@ -3,7 +3,7 @@
 # Wait for configured interfaces to be set up
 # The name of each additional interface should be provided
 # in an env var with the _IFACE suffix.
-for IFACE in `env | grep _IFACE | cut -d= -f2`; do
+for IFACE in `env | grep _IFACE | cut -d= -f2 | sort -u`; do
     # TODO: change pipework by native docker networking once stable
     echo "Waiting for interface $IFACE to be up"
     timeout 60s pipework --wait -i $IFACE

@@ -23,4 +23,4 @@ ADD conf/midonetrc /root/.midonetrc
 EXPOSE 8080 8181
 
 # Run midonet-cluster script by default
-CMD ["/run-midonetcluter.sh"]
+CMD ["/run-midonetcluster.sh"]
