@@ -68,8 +68,9 @@ Ok, so let's build the required images for the flavour:
     Step 0 : FROM ubuntu:14.04
     [... cut ...]
 
-If you modify some of the images (dockerfiles or associated files), you can build them independently:
+If you modify some of the images (dockerfiles or associated files), be sure to do `python setup.py install`, then you can build them independently. :
 
+    $ python setup.py install
     $ sandbox-manager -c config.cfg build midonet:master
     [07-10 16:18:16] INFO - Loading configuration file: config.cfg
     [07-10 16:18:16] INFO - Build started for midolman:master, publish is False
