@@ -1,3 +1,3 @@
 api:
-  image: sandobx/midonet-api
+  image: sandbox/midonet-api
 
