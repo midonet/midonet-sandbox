@@ -13,6 +13,9 @@ for IFACE in `env | grep _IFACE | cut -d= -f2 | sort -u`; do
     fi
 done
 
+# Add vtysh pager for easy debugging
+export VTYSH_PAGER=more
+
 # Midonet do not support ipv6
 sysctl -w net.ipv6.conf.all.disable_ipv6=1
 sysctl -w net.ipv6.conf.default.disable_ipv6=1
