@@ -9,7 +9,7 @@ ONBUILD RUN apt-get -qy update
 ONBUILD RUN apt-get install -qy midolman zkdump python-setproctitle
 
 RUN apt-get -qy update
-RUN apt-get -qy install git mz tcpdump nmap iptables --no-install-recommends
+RUN apt-get -qy install git mz tcpdump nmap iptables telnet traceroute --no-install-recommends
 
 # Install Zulu Java 8
 RUN apt-get install -qy software-properties-common
