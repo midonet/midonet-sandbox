@@ -1,0 +1,3 @@
+vtep:
+  image: sandbox/vtep
+  privileged: true
