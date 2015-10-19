@@ -84,7 +84,7 @@ class Dispatcher(object):
             if details:
                 components = self._composer.get_components_by_flavour(flavour)
                 components = ', '.join(['{}x {}'.format(count, image)
-                                        for image, count in components.items()])
+                                       for image, count in components.items()])
                 flavours.append([flavour, components])
             else:
                 flavours.append([flavour])
@@ -120,9 +120,23 @@ class Dispatcher(object):
 
     def stop_all(self, options):
         remove = options['--remove']
-        composer = self._composer
 
-        return composer.stop(composer.list_running_sandbox(), remove)
+        return self._composer.stop(
+            self._composer.list_running_sandbox(),
+            remove)
+
+    def kill(self, options):
+        names = options['<name>']
+        remove = options['--remove']
+
+        return self._composer.kill(names, remove)
+
+    def kill_all(self, options):
+        remove = options['--remove']
+
+        return self._composer.kill(
+            self._composer.list_running_sandbox(),
+            remove)
 
     def exec_(self, options):
         container = self._container_builder.for_name(options['<container>'])
@@ -137,8 +151,9 @@ class Dispatcher(object):
             container.ssh()
 
     def images_list(self, options):
-        docker = Docker(self._config.get_sandbox_value('docker_socket'),
-                        self._config.get_sandbox_value('docker_remove_intermediate'))
+        docker = Docker(
+            self._config.get_sandbox_value('docker_socket'),
+            self._config.get_sandbox_value('docker_remove_intermediate'))
         images = list()
 
         for image in docker.list_images('sandbox/'):
@@ -148,8 +163,9 @@ class Dispatcher(object):
                                datetime.fromtimestamp(image['Created']))])
 
         if images:
-            print(
-                tabulate(images, headers=['Image', 'Created'], tablefmt='psql'))
+            print(tabulate(images,
+                           headers=['Image', 'Created'],
+                           tablefmt='psql'))
             return True
 
         log.info('No images found')

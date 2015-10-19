@@ -181,6 +181,9 @@ class Docker(object):
     def stop_container(self, container_ref):
         self._client.stop(container_ref)
 
+    def kill_container(self, container_ref):
+        self._client.kill(container_ref)
+
     def remove_container(self, container_ref):
         self._client.remove_container(container_ref)
 
@@ -192,7 +195,9 @@ class Docker(object):
         NOTE: Needs the 'docker' binary installed in the host
         """
         cmd = ['docker', 'exec', '-it',
-               self.principal_container_name(container_ref), command]
+               self.principal_container_name(container_ref),
+               'env', 'TERM=xterm',
+               command]
         log.debug('Running command: "{}"'.format(' '.join(cmd)))
         p = subprocess.Popen(cmd, stderr=subprocess.STDOUT)
         p.wait()

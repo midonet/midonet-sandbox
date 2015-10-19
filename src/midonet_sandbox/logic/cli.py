@@ -24,6 +24,8 @@ Usage:
     sandbox-manage [options] run <flavour> --name=<name> [--override=<override>] [--provision=<script>] [--force]
     sandbox-manage [options] stop <name>... [--remove]
     sandbox-manage [options] stop-all [--remove]
+    sandbox-manage [options] kill <name>... [--remove]
+    sandbox-manage [options] kill-all [--remove]
     sandbox-manage [options] exec <container> <command>
     sandbox-manage [options] ssh <container>
     sandbox-manage [options] flavours-list [--details]

@@ -113,28 +113,14 @@ class Composer(object):
         """
         Stop the running sandbox
         """
-        running_sandboxes = self.list_running_sandbox()
+        return self._map_stop_or_kill('stop', sandboxes, remove)
 
-        for sandbox in sandboxes:
-            if sandbox not in running_sandboxes:
-                log.info('Sandbox {} not running. Skipping'.format(sandbox))
-                continue
-
-            containers = self._docker.list_containers(
-                '{}{}_'.format(self.SANDBOX_PREFIX, sandbox))
-
-            for container_ref in containers:
-                container = self._container_builder.for_container_ref(
-                    container_ref)
-                service_name = container.service_name
-                log.info('Sandbox {} - Stopping container {}'.format(sandbox,
-                                                                     service_name))
-                self._docker.stop_container(container_ref)
-                if remove:
-                    log.info('Sandbox {} - Removing '
-                             'container {}'.format(sandbox, service_name))
-
-                    self._docker.remove_container(container_ref)
+    @exception_safe(ConnectionError, None)
+    def kill(self, sandboxes, remove=False):
+        """
+        Kill the running sandbox
+        """
+        return self._map_stop_or_kill('kill', sandboxes, remove)
 
     @exception_safe(ConnectionError, [])
     def get_sandbox_detail(self, sandbox):
@@ -198,3 +184,34 @@ class Composer(object):
                     return definition['image']
 
         return None
+
+    def _map_stop_or_kill(self, op, sandboxes, remove=False):
+        """
+        Stop/Kill the running sandbox
+        """
+        running_sandboxes = self.list_running_sandbox()
+
+        for sandbox in sandboxes:
+            if sandbox not in running_sandboxes:
+                log.info('Sandbox {} not running. Skipping'.format(sandbox))
+                continue
+
+            containers = self._docker.list_containers(
+                '{}{}_'.format(self.SANDBOX_PREFIX, sandbox))
+
+            for container_ref in containers:
+                container = self._container_builder.for_container_ref(
+                    container_ref)
+                service_name = container.service_name
+                log.info('Sandbox {} - {}ing container {}'.format(sandbox,
+                                                                  op,
+                                                                  service_name))
+
+                docker_op = op + '_container'
+                getattr(self._docker, docker_op)(container_ref)
+                if remove:
+                    log.info('Sandbox {} - Removing '
+                             'container {}'.format(sandbox, service_name))
+
+                    self._docker.remove_container(container_ref)
+        return True

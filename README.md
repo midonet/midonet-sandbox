@@ -140,6 +140,9 @@ To stop the sandbox:
     [07-02 11:23:50] INFO - Sandbox staging - Stopping container cassandra2_1
     [07-02 11:23:52] INFO - Sandbox staging - Stopping container cassandra1_1
 
+The `stop` command will try to gracefully stop the container. However, this might be a slow operation as the host waits for the container command to return. In a development session, you might not care about the state of the container after stopping it so you have the option to just kill it without waiting for the container to return.
+
+    $ sandbox-manage -c config.cfg kill staging     # or kill-all to kill all the running sandbox
 
 ### Provide your own flavour
 
