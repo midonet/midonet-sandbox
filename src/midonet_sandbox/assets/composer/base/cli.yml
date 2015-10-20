@@ -1,2 +1,5 @@
 cli:
   image: sandbox/midonet-cli
+  volumes:
+  - /etc/localtime:/etc/localtime:ro
+  - /etc/timezone:/etc/timezone:ro
