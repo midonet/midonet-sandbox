@@ -5,6 +5,7 @@ ONBUILD ADD conf/midonet.list /etc/apt/sources.list.d/midonet.list
 ONBUILD ADD bin/run-midolman.sh /run-midolman.sh
 
 ONBUILD RUN curl -k http://repo.midonet.org/packages.midokura.key | apt-key add -
+ONBUILD RUN curl -k http://builds.midonet.org/midorepo.key | apt-key add -
 ONBUILD RUN apt-get -qy update
 ONBUILD RUN apt-get install -qy midolman zkdump python-setproctitle
 

@@ -1,2 +1,2 @@
 deb http://repo.midonet.org/midonet/current stable main
-deb http://repo.midonet.org/misc stable main
+deb http://builds.midonet.org/misc stable main
