@@ -19,8 +19,12 @@ fi
 cp /etc/midonet-cluster/logback.xml.dev /etc/midonet-cluster/logback.xml
 
 # Update config file to point to ZK
-sed -i -e 's/zookeeper_hosts = .*$/zookeeper_hosts = '"$ZK_HOSTS"'/' /etc/midonet-cluster/midonet-cluster.conf
-sed -i -e 's/root_key = .*$/root_key = '"$(echo $ZK_ROOT_KEY|sed 's/\//\\\//g')"'/' /etc/midonet-cluster/midonet-cluster.conf
+CLUSTER_ENV=/usr/share/midonet-cluster/midonet-cluster-env.sh
+MIDO_CFG=`cat $CLUSTER_ENV | grep "MIDO_CFG" | grep -v "MIDO_CFG_FILE" | tr -d '[[:space:]]' | cut -d= -f2`
+MIDO_CFG_FILE=`cat $CLUSTER_ENV | grep "MIDO_CFG_FILE" | tr -d '[[:space:]]' | cut -d= -f2`
+
+sed -i -e 's/zookeeper_hosts = .*$/zookeeper_hosts = '"$ZK_HOSTS"'/' $MIDO_CFG/$MIDO_CFG_FILE
+sed -i -e 's/root_key = .*$/root_key = '"$(echo $ZK_ROOT_KEY|sed 's/\//\\\//g')"'/' $MIDO_CFG/$MIDO_CFG_FILE
 
 # Run cluster
 exec /sbin/init
