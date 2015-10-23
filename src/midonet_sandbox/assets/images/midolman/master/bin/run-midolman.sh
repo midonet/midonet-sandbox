@@ -6,7 +6,7 @@
 for IFACE in `env | grep _IFACE | cut -d= -f2 | sort -u`; do
     # TODO: change pipework by native docker networking once stable
     echo "Waiting for interface $IFACE to be up"
-    timeout 60s pipework --wait -i $IFACE
+    timeout 300s pipework --wait -i $IFACE
     if [ $? -eq 124 ]; then
         echo "Interface $IFACE was not ready after 60s. Exiting..."
         exit 1
