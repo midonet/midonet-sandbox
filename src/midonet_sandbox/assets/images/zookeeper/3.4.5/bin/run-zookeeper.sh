@@ -19,7 +19,9 @@ echo "${ZOO_ID}" > /var/lib/zookeeper/myid
 # should update linked hosts in conf
 
 # Remove stale configuration (in case of stopped/starded container)
-rm /zoo/conf/zoo.cfg
+if [ -f /zoo/conf/zoo.cfg ]; then
+    rm /zoo/conf/zoo.cfg
+fi
 
 if [[ `env | grep _PORT_2888_TCP_ADDR` ]]; then
     MIDO_ZOOKEEPER_HOSTS="$(env | grep _PORT_2888_TCP_ADDR | sed -e 's/.*_PORT_2888_TCP_ADDR=//g' | sort -u)"
