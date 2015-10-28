@@ -20,5 +20,8 @@ MIDO_CFG_FILE=`cat $CLUSTER_ENV | grep "MIDO_CFG_FILE" | tr -d '[[:space:]]' | c
 
 sed -i -e 's/zookeeper_hosts = .*$/zookeeper_hosts = '"$ZK_HOSTS"'/' $MIDO_CFG/$MIDO_CFG_FILE
 
+# Update cluster logs to report DEBUG
+sed -i 's/<root level="INFO">/<root level="DEBUG">/' logback.xml
+
 # Run cluster
 exec /sbin/init
