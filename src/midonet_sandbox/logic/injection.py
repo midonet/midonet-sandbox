@@ -21,7 +21,8 @@ class SandboxModule(Module):
     @provides(Docker)
     @inject(configuration=Config)
     def docker_provider(self, configuration):
-        return Docker(configuration.get_sandbox_value('docker_socket'))
+        return Docker(configuration.get_sandbox_value('docker_socket'),
+                      configuration.get_sandbox_value('docker_remove_intermediate'))
 
 
 def get_injector(options):

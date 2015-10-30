@@ -14,7 +14,8 @@ log = logging.getLogger('midonet-sandbox.configuration')
 DEFAULT_SETTINGS = {
     'extra_flavours': None,
     'extra_components': None,
-    'docker_socket': 'unix://var/run/docker.sock'
+    'docker_socket': 'unix://var/run/docker.sock',
+    'docker_remove_intermediate': False,
 }
 
 
@@ -26,6 +27,7 @@ class Config(object):
     extra_flavours = <path_to_extra_flavours_directory>
     extra_components = <path_to_extra_flavours_directory>
     docker_socket = unix://var/run/docker.sock
+    docker_remove_intermediate = True
     -----------------
     """
 

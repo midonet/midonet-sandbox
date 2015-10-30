@@ -102,7 +102,8 @@ class Dispatcher(object):
             container.ssh()
 
     def images_list(self, options):
-        docker = Docker(self._config.get_sandbox_value('docker_socket'))
+        docker = Docker(self._config.get_sandbox_value('docker_socket'),
+                        self._config.get_sandbox_value('docker_remove_intermediate'))
         images = list()
 
         for image in docker.list_images('sandbox/'):
