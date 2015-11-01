@@ -1,0 +1,2 @@
+deb http://builds.midonet.org/misc stable main
+deb http://builds.midonet.org/openstack-kilo stable main
