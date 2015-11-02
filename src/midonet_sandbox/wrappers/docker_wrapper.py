@@ -14,10 +14,11 @@ log = logging.getLogger('midonet-sandbox.docker')
 
 
 class Docker(object):
-    def __init__(self, socket):
+    def __init__(self, socket, remove_intermediate=False):
         log.debug('DockerClient connecting to {}'.format(socket))
         self._socket = socket
         self._client = Client(base_url=socket)
+        self._remove_intermediate = remove_intermediate
 
     @exception_safe(ConnectionError, None)
     def build(self, dockerfile, image):
@@ -29,7 +30,8 @@ class Docker(object):
         log.debug('Invoking docker build on {}'.format(dockerfile))
 
         response = self._client.build(path=os.path.dirname(dockerfile),
-                                      tag=image, pull=False, rm=False,
+                                      tag=image, pull=False,
+                                      rm=self._remove_intermediate,
                                       dockerfile=os.path.basename(dockerfile))
 
         for line in response:
