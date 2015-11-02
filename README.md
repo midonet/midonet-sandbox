@@ -18,12 +18,13 @@ Once you installed it, you can check the available flavours:
     $ sandbox-manage flavours-list
     [07-02 10:51:54] INFO - Cannot read ~/.midonet-sandboxrc
     [07-02 10:51:54] INFO - Using default settings
-    +--------------+
-    | Flavours     |
-    |--------------|
-    | master+kilo  |
-    | 2015.03+kilo |
-    +--------------+
+    +-----------------+
+    | Flavours        |
+    |-----------------|
+    | master+kilo     |
+    | master+liberty  |
+    | 2015.03+kilo    |
+    +-----------------+
 
 
 You may want to check which components these flavours provide:
