@@ -61,6 +61,10 @@ class Container(object):
     def image(self):
         return self._container_ref['Image']
 
+    @property
+    def is_running(self):
+        return self._container_ref['Running']
+
     def ports(self, pretty=False):
         ports = self._container_ref['Ports']
 

@@ -6,6 +6,7 @@ import logging
 import keyword
 
 from docopt import docopt
+import sys
 from injection import get_injector
 from midonet_sandbox.assets.assets import BASE_ASSETS_PATH
 from midonet_sandbox.logic.dispatcher import Dispatcher
@@ -43,7 +44,8 @@ def main():
     injector = get_injector(options)
     dispatcher = injector.get(Dispatcher)
 
-    dispatch(options, dispatcher)
+    if not dispatch(options, dispatcher):
+        sys.exit(1)
 
 
 def dispatch(options, dispatcher):
@@ -57,7 +59,8 @@ def dispatch(options, dispatcher):
 
     action = _find_action(options)
     if action and hasattr(dispatcher, action):
-        getattr(dispatcher, action)(options)
+        return getattr(dispatcher, action)(options)
+
 
 
 def _find_action(options):

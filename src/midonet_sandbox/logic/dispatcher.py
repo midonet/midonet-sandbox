@@ -36,13 +36,15 @@ class Dispatcher(object):
             if ':' not in image:
                 image = '{}:master'.format(image)
 
-            self._builder.build(image)
+            if not self._builder.build(image):
+                return False
+        return True
 
     def build_all(self, options):
         flavour = options['<flavour>']
         force = options['--force']
 
-        self._builder.build_all(flavour, force_rebuild=force)
+        return self._builder.build_all(flavour, force_rebuild=force)
 
     def pull(self, options):
         images = options['<image>']
@@ -50,12 +52,14 @@ class Dispatcher(object):
             if ':' not in image:
                 image = '{}:master'.format(image)
 
-            self._builder.pull(image)
+            if not self._builder.pull(image):
+                return False
+        return True
 
     def pull_all(self, options):
         flavour = options['<flavour>']
 
-        self._builder.pull_all(flavour)
+        return self._builder.pull_all(flavour)
 
     def push(self, options):
         images = options['<image>']
@@ -63,12 +67,14 @@ class Dispatcher(object):
             if ':' not in image:
                 image = '{}:master'.format(image)
 
-            self._builder.push(image)
+            if not self._builder.push(image):
+                return False
+        return True
 
     def push_all(self, options):
         flavour = options['<flavour>']
 
-        self._builder.push_all(flavour)
+        return self._builder.push_all(flavour)
 
     def flavours_list(self, options):
         details = options['--details']
@@ -89,9 +95,10 @@ class Dispatcher(object):
                 headers = ['Flavour', 'Components']
 
             print(tabulate(flavours, headers=headers, tablefmt='psql'))
-            return
+            return True
 
         log.info('No flavours found')
+        return True
 
     def run(self, options):
         flavour = options['<flavour>']
@@ -102,18 +109,20 @@ class Dispatcher(object):
 
         if self._composer.run(flavour, name, force, override, provision):
             self.print_sandbox_details([name])
+            return True
+        return False
 
     def stop(self, options):
         names = options['<name>']
         remove = options['--remove']
 
-        self._composer.stop(names, remove)
+        return self._composer.stop(names, remove)
 
     def stop_all(self, options):
         remove = options['--remove']
         composer = self._composer
 
-        composer.stop(composer.list_running_sandbox(), remove)
+        return composer.stop(composer.list_running_sandbox(), remove)
 
     def exec_(self, options):
         container = self._container_builder.for_name(options['<container>'])
@@ -141,9 +150,10 @@ class Dispatcher(object):
         if images:
             print(
                 tabulate(images, headers=['Image', 'Created'], tablefmt='psql'))
-            return
+            return True
 
         log.info('No images found')
+        return False
 
     def sandbox_list(self, options):
         details = options['--details']
@@ -159,13 +169,14 @@ class Dispatcher(object):
 
         if details:
             self.print_sandbox_details(running_sandboxes)
-            return
 
         for sandbox in running_sandboxes:
             sandboxes.append([sandbox])
 
         if sandboxes:
             print(tabulate(sandboxes, headers=['Sandbox'], tablefmt='psql'))
+
+        return True
 
     def print_sandbox_details(self, sandboxes):
         sandbox_list = list()
@@ -177,3 +188,5 @@ class Dispatcher(object):
         if sandbox_list:
             headers = ['Sandbox', 'Name', 'Image', 'Ports', 'Ip']
             print(tabulate(sandbox_list, headers=headers, tablefmt='psql'))
+
+        return True

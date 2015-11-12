@@ -41,22 +41,24 @@ class Builder(object):
             try:
                 base_dockerfile = self._assets.get_abs_image_dockerfile(name,
                                                                         'base')
-                self._docker.build(base_dockerfile,
-                                   'sandbox/{}:base'.format(name))
+                if not self._docker.build(base_dockerfile,
+                                          'sandbox/{}:base'.format(name)):
+                    return False
             except ImageNotFound:
                 log.info('Base image {}:base not found, skipping'.format(name))
 
         # Build the actual image
         try:
             dockerfile = self._assets.get_abs_image_dockerfile(name, tag)
-            self._docker.build(dockerfile, 'sandbox/{}'.format(image))
+            return self._docker.build(dockerfile, 'sandbox/{}'.format(image))
         except ImageNotFound:
             log.error('Image {} not found, build aborted'.format(image))
+            return False
 
     def build_all(self, flavour, force_rebuild):
         components = self._composer.get_components_by_flavour(flavour)
         components = components.keys()
-        components = [c.replace('sandbox/', '') for c in components]
+        components = [c.replace('sandbox/', '') for c in components if 'sandbox/' in c]
         images = [','.join(image['RepoTags']).replace('sandbox/', '') for image
                   in self._docker.list_images('sandbox/')]
 
@@ -66,16 +68,18 @@ class Builder(object):
 
             for image in components:
                 if (image not in images) or force_rebuild:
-                    self.build(image)
+                    if not self.build(image):
+                        return False
                 else:
                     log.info('{} image already exists. Skipping'.format(image))
+        return True
 
     def pull(self, image):
         log.info('Pulling started for {}'.format(image))
 
         # Pull the actual image
         try:
-            self._docker.pull(image)
+            return self._docker.pull(image)
         except ImageNotFound:
             log.error('Image {} not found, build aborted'.format(image))
 
@@ -86,14 +90,16 @@ class Builder(object):
             log.info('Pulling the following images: '
                      '{}'.format(', '.join(components)))
             for image in components:
-                self.pull(image)
+                if not self.pull(image):
+                    return False
+        return True
 
     def push(self, image):
         log.info('Pushing started for {}'.format(image))
 
         # Push the actual image
         try:
-            self._docker.push(image)
+            return self._docker.push(image)
         except:
             log.error('Unknown exception.')
             raise
@@ -105,5 +111,6 @@ class Builder(object):
             log.info('Pushing the following images: '
                      '{}'.format(', '.join(components)))
             for image in components:
-                self.push(image)
-
+                if not self.push(image):
+                    return False
+        return True

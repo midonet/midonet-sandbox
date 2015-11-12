@@ -66,20 +66,20 @@ class TestDispatcher(object):
 
     # test build action
     def test_build_no_tag(self):
-        images = ['test']
-        calls = ['test:master']
+        images = ['sandbox/test']
+        calls = ['sandbox/test:master']
 
         self._assert_build_call(images, calls)
 
     def test_build_tag(self):
-        images = ['test:1.0']
-        calls = ['test:1.0']
+        images = ['sandbox/test:1.0']
+        calls = ['sandbox/test:1.0']
 
         self._assert_build_call(images, calls)
 
     def test_build_multiple_images(self):
-        images = ['image1:1.0', 'image2']
-        calls = ['image1:1.0', 'image2:master']
+        images = ['sandbox/image1:1.0', 'sandbox/image2']
+        calls = ['sandbox/image1:1.0', 'sandbox/image2:master']
 
         self._assert_build_call(images, calls)
 

@@ -12,9 +12,11 @@ from midonet_sandbox.utils import exception_safe
 
 log = logging.getLogger('midonet-sandbox.docker')
 
+
 class Docker(object):
 
-    def __init__(self, socket, remove_intermediate=False, registry=None, insecure_registry=False):
+    def __init__(self, socket, remove_intermediate=False, registry=None,
+                 insecure_registry=False):
         log.debug('DockerClient connecting to {}'.format(socket))
         self._socket = socket
         self._client = Client(base_url=socket)
@@ -22,7 +24,7 @@ class Docker(object):
         self._registry = registry
         self._insecure_registry = insecure_registry
 
-    @exception_safe(ConnectionError, None)
+    @exception_safe(ConnectionError, False)
     def build(self, dockerfile, image):
         """/
         :param dockerfile: The dockerfile full path
@@ -36,10 +38,17 @@ class Docker(object):
                                       rm=self._remove_intermediate,
                                       dockerfile=os.path.basename(dockerfile))
 
+        last_line = None
         for line in response:
             eval_line = eval(line)
             if 'stream' in eval_line:
                 print(eval_line['stream']),
+                last_line = eval_line['stream']
+        # Check for ensure success after building
+        if 'Successfully built' not in last_line:
+            log.error('Error building the image {}.'.format(image))
+            return False
+        return True
 
     @exception_safe(ConnectionError, None)
     def pull(self, image):
@@ -49,7 +58,8 @@ class Docker(object):
                           (dockerhub if none defined)
         """
         name, tag = image.split(':')
-        repository = '{}/{}'.format(self._registry, name) if self._registry else name
+        repository = '{}/{}'.format(self._registry, name) \
+            if self._registry else name
         log.info('Now Pulling {}:{}'.format(repository, tag))
         response = self._client.pull(repository=repository,
                                      tag=tag,
@@ -65,6 +75,7 @@ class Docker(object):
                 log.info('[{}:{}] Status: {}'.format(repository,
                                                      tag,
                                                      eval_line['status']))
+        return True
 
     @exception_safe(ConnectionError, None)
     def push(self, image):
@@ -93,11 +104,12 @@ class Docker(object):
                 )
                 return False
             if 'status' in eval_line:
-                if 'Pushing' not in eval_line['status'] and \
-                                'Buffering' not in eval_line['status']:
+                if 'Pushing' not in eval_line['status'] \
+                        and 'Buffering' not in eval_line['status']:
                     log.info('[{}:{}] Status: {}'.format(repository,
                                                          tag,
                                                          eval_line['status']))
+        return True
 
     @exception_safe(ConnectionError, [])
     def list_images(self, prefix=None):
@@ -149,8 +161,9 @@ class Docker(object):
                 return name[1:]
 
     def container_ip(self, container_ref):
-        return self._client.inspect_container(container_ref)['NetworkSettings'][
-            'IPAddress']
+        return self._client.inspect_container(
+            container_ref
+        )['NetworkSettings']['IPAddress']
 
     def stop_container(self, container_ref):
         self._client.stop(container_ref)
@@ -158,7 +171,7 @@ class Docker(object):
     def remove_container(self, container_ref):
         self._client.remove_container(container_ref)
 
-    @exception_safe(OSError, None)
+    @exception_safe(OSError, False)
     def execute(self, container_ref, command):
         """
         Execute a command inside the container.

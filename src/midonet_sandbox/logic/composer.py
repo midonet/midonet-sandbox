@@ -36,7 +36,7 @@ class Composer(object):
         self._composer = composer
         self._container_builder = container_builder
 
-    @exception_safe(ConnectionError, None)
+    @exception_safe(ConnectionError, False)
     def run(self, flavour, name, force=False, override=None, provision=None):
         """
         :param flavour: The flavour name
@@ -85,9 +85,9 @@ class Composer(object):
                         'File {} does not exist or it\'s not executable'.format(
                             provision
                         ))
-            return True
+                    return False
 
-        return False
+        return True
 
     @staticmethod
     def __get_sandbox_name(container_name):
