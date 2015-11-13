@@ -3,7 +3,7 @@ MAINTAINER MidoNet (http://midonet.org)
 
 ONBUILD ADD conf/midonet.list /etc/apt/sources.list.d/midonet.list
 ONBUILD ADD bin/run-midolman.sh /run-midolman.sh
-ADD bin/fake_snort.py /usr/bin/fake_snort
+ADD src/fake_snort.c /tmp/fake_snort.c
 
 ONBUILD RUN curl -k http://repo.midonet.org/packages.midokura.key | apt-key add -
 ONBUILD RUN curl -k http://builds.midonet.org/midorepo.key | apt-key add -
@@ -19,10 +19,9 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0x219BD9C9
 RUN apt-add-repository 'deb http://repos.azulsystems.com/ubuntu stable main'
 RUN apt-get update && apt-get install -qy zulu-8
 
-# pypcap for fake snort
-RUN apt-get install -qy python-pip
-RUN apt-get build-dep -qy python-pypcap
-RUN pip install pypcap
+# get deps and compile fake snort
+RUN apt-get install -qy libpcap-dev
+RUN gcc -o /usr/bin/fake_snort /tmp/fake_snort.c -lpcap
 
 # Get pipework to allow arbitrary configurations on the container from the host
 # Might get included into docker-networking in the future
