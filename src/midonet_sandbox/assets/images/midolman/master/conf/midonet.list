@@ -1,2 +1,3 @@
-deb http://repo.midonet.org/midonet/current stable main
+deb http://builds.midonet.org/midonet-nightly unstable main
 deb http://builds.midonet.org/misc stable main
+deb http://ppa.launchpad.net/openjdk-r/ppa/ubuntu trusty main

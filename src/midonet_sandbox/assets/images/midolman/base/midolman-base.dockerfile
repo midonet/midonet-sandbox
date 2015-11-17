@@ -13,11 +13,10 @@ ONBUILD RUN apt-get install -qy midolman zkdump python-setproctitle
 RUN apt-get -qy update
 RUN apt-get -qy install git mz tcpdump nmap iptables telnet traceroute --no-install-recommends
 
-# Install Zulu Java 8
+# Install Java 8
 RUN apt-get install -qy software-properties-common
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0x219BD9C9
-RUN apt-add-repository 'deb http://repos.azulsystems.com/ubuntu stable main'
-RUN apt-get update && apt-get install -qy zulu-8
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0x86F44E2A
+RUN apt-get update && apt-get install -qy openjdk-8
 
 # get deps and compile fake snort
 RUN apt-get install -qy libpcap-dev
