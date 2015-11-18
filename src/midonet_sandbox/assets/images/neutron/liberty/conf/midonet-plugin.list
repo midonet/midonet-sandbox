@@ -1,0 +1,2 @@
+# Using unstable repo as we don't have stable packages just yet
+deb http://builds.midonet.org/openstack-liberty unstable main

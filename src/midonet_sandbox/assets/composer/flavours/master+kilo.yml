@@ -41,15 +41,6 @@ cassandra1:
   image: sandbox/cassandra:2.0
   hostname: cassandra1
 
-cassandra2:
-  extends:
-    file: $BASE/cassandra.yml
-    service: cassandra
-  image: sandbox/cassandra:2.0
-  hostname: cassandra2
-  links:
-  - cassandra1:cs1
-
 midolman:
   extends:
     file: $BASE/midolman.yml
@@ -73,6 +64,7 @@ cluster:
   - "zookeeper1:zk1"
   - "zookeeper2:zk2"
   - "zookeeper3:zk3"
+  - "keystone:keystone"
 
 keystone:
   extends:
@@ -80,3 +72,20 @@ keystone:
     service: keystone
   image: sandbox/keystone:kilo
   hostname: keystone
+
+mariadb:
+  image: mariadb:5.5
+  hostname: mariadb
+  environment:
+  - MYSQL_ROOT_PASSWORD=root
+
+neutron:
+  extends:
+    file: $BASE/neutron.yml
+    service: neutron
+  image: sandbox/neutron:kilo
+  hostname: neutron
+  links:
+  - "keystone:keystone"
+  - "cluster:midonetapi"
+  - "mariadb:mariadb"
