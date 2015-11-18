@@ -1,0 +1,35 @@
+# This file is a placeholder of all supported images
+# in sandbox, so it's easier to compile, pull and push
+# all in one (instead of going through each flavour)
+zookeeper:
+  image: sandbox/zookeeper:3.4.5
+
+cassandra:
+  image: sandbox/cassandra:2.0
+
+midolman:
+  image: sandbox/midolman:master
+
+cluster:
+  image: sandbox/midonet-cluster:master
+
+quagga:
+  image: sandbox/quagga:0.99.22
+
+vtep:
+  image: sandbox/vtep:2.0
+
+keystonekilo:
+  image: sandbox/keystone:kilo
+
+keystoneliberty:
+  image: sandbox/keystone:liberty
+
+neutronkilo:
+  image: sandbox/neutron:kilo
+
+neutronliberty:
+  image: sandbox/neutron:liberty
+
+mariadb:
+  image: mariadb:5.5

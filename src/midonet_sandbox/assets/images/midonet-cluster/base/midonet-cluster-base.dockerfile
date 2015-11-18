@@ -12,8 +12,8 @@ RUN apt-get update && apt-get install -qqy curl
 
 # Install Java 8
 RUN apt-get install -qy software-properties-common
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0x86F44E2A
-RUN apt-get update && apt-get install -qy openjdk-8
+RUN add-apt-repository -y ppa:openjdk-r/ppa
+RUN apt-get update && apt-get install -qy openjdk-8-jdk --no-install-recommends
 
 # Configure midonet-cluster
 ADD bin/run-midonetcluster.sh /run-midonetcluster.sh

@@ -16,6 +16,8 @@ DEFAULT_SETTINGS = {
     'extra_components': None,
     'docker_socket': 'unix://var/run/docker.sock',
     'docker_remove_intermediate': False,
+    'docker_registry': None,
+    'docker_insecure_registry': False
 }
 
 
@@ -28,6 +30,8 @@ class Config(object):
     extra_components = <path_to_extra_flavours_directory>
     docker_socket = unix://var/run/docker.sock
     docker_remove_intermediate = True
+    docker_registry = None
+    docker_insecure_registry = False
     -----------------
     """
 

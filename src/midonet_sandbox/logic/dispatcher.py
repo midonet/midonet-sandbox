@@ -44,6 +44,32 @@ class Dispatcher(object):
 
         self._builder.build_all(flavour, force_rebuild=force)
 
+    def pull(self, options):
+        images = options['<image>']
+        for image in images:
+            if ':' not in image:
+                image = '{}:master'.format(image)
+
+            self._builder.pull(image)
+
+    def pull_all(self, options):
+        flavour = options['<flavour>']
+
+        self._builder.pull_all(flavour)
+
+    def push(self, options):
+        images = options['<image>']
+        for image in images:
+            if ':' not in image:
+                image = '{}:master'.format(image)
+
+            self._builder.push(image)
+
+    def push_all(self, options):
+        flavour = options['<flavour>']
+
+        self._builder.push_all(flavour)
+
     def flavours_list(self, options):
         details = options['--details']
 

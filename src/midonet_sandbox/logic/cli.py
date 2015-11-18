@@ -16,6 +16,10 @@ command_line = """Midonet Sandbox Manager
 Usage:
     sandbox-manage [options] build <image>...
     sandbox-manage [options] build-all <flavour> [--force]
+    sandbox-manage [options] pull <image>...
+    sandbox-manage [options] pull-all <flavour>
+    sandbox-manage [options] push <image>...
+    sandbox-manage [options] push-all <flavour>
     sandbox-manage [options] run <flavour> --name=<name> [--override=<override>] [--provision=<script>] [--force]
     sandbox-manage [options] stop <name>... [--remove]
     sandbox-manage [options] stop-all [--remove]

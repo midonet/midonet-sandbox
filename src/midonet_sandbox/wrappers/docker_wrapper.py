@@ -12,13 +12,15 @@ from midonet_sandbox.utils import exception_safe
 
 log = logging.getLogger('midonet-sandbox.docker')
 
-
 class Docker(object):
-    def __init__(self, socket, remove_intermediate=False):
+
+    def __init__(self, socket, remove_intermediate=False, registry=None, insecure_registry=False):
         log.debug('DockerClient connecting to {}'.format(socket))
         self._socket = socket
         self._client = Client(base_url=socket)
         self._remove_intermediate = remove_intermediate
+        self._registry = registry
+        self._insecure_registry = insecure_registry
 
     @exception_safe(ConnectionError, None)
     def build(self, dockerfile, image):
@@ -38,6 +40,64 @@ class Docker(object):
             eval_line = eval(line)
             if 'stream' in eval_line:
                 print(eval_line['stream']),
+
+    @exception_safe(ConnectionError, None)
+    def pull(self, image):
+        """
+        :param image: The image name with its tag
+        :param repository: The repository where to pull the image
+                          (dockerhub if none defined)
+        """
+        name, tag = image.split(':')
+        repository = '{}/{}'.format(self._registry, name) if self._registry else name
+        log.info('Now Pulling {}:{}'.format(repository, tag))
+        response = self._client.pull(repository=repository,
+                                     tag=tag,
+                                     insecure_registry=self._insecure_registry,
+                                     stream=True)
+        for line in response:
+            eval_line = eval(line)
+            if 'error' in eval_line:
+                log.error(
+                    'Error pulling image: {}'.format(eval_line['error']))
+                return False
+            if 'status' in eval_line:
+                log.info('[{}:{}] Status: {}'.format(repository,
+                                                     tag,
+                                                     eval_line['status']))
+
+    @exception_safe(ConnectionError, None)
+    def push(self, image):
+        """
+        :param image: The image name with its tag
+        :param repository: The repository where to push the image
+                           (dockerhub if none defined)
+        """
+        name, tag = image.split(':')
+        if self._registry:
+            # First tag the local image to map to the new registry
+            repository = '{}/{}'.format(self._registry, name)
+            self._client.tag(image, repository, tag, force=True)
+        else:
+            repository = name
+        log.info('Now pushing {}:{}'.format(repository, tag))
+        response = self._client.push(repository=repository,
+                                     tag=tag,
+                                     insecure_registry=self._insecure_registry,
+                                     stream=True)
+        for line in response:
+            eval_line = eval(line)
+            if 'error' in eval_line:
+                log.error(
+                    'Error pushing image: {}'.format(eval_line['error'])
+                )
+                return False
+            if 'status' in eval_line:
+                if 'Pushing' not in eval_line['status'] and \
+                                'Buffering' not in eval_line['status']:
+                    log.info('[{}:{}] Status: {}'.format(repository,
+                                                         tag,
+                                                         eval_line['status']))
 
     @exception_safe(ConnectionError, [])
     def list_images(self, prefix=None):

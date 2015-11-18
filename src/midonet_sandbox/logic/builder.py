@@ -69,3 +69,41 @@ class Builder(object):
                     self.build(image)
                 else:
                     log.info('{} image already exists. Skipping'.format(image))
+
+    def pull(self, image):
+        log.info('Pulling started for {}'.format(image))
+
+        # Pull the actual image
+        try:
+            self._docker.pull(image)
+        except ImageNotFound:
+            log.error('Image {} not found, build aborted'.format(image))
+
+    def pull_all(self, flavour):
+        components = self._composer.get_components_by_flavour(flavour)
+
+        if components:
+            log.info('Pulling the following images: '
+                     '{}'.format(', '.join(components)))
+            for image in components:
+                self.pull(image)
+
+    def push(self, image):
+        log.info('Pushing started for {}'.format(image))
+
+        # Push the actual image
+        try:
+            self._docker.push(image)
+        except:
+            log.error('Unknown exception.')
+            raise
+
+    def push_all(self, flavour):
+        components = self._composer.get_components_by_flavour(flavour)
+
+        if components:
+            log.info('Pushing the following images: '
+                     '{}'.format(', '.join(components)))
+            for image in components:
+                self.push(image)
+

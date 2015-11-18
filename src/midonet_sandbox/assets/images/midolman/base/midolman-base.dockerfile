@@ -15,8 +15,8 @@ RUN apt-get -qy install git mz tcpdump nmap iptables telnet traceroute --no-inst
 
 # Install Java 8
 RUN apt-get install -qy software-properties-common
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0x86F44E2A
-RUN apt-get update && apt-get install -qy openjdk-8
+RUN add-apt-repository -y ppa:openjdk-r/ppa
+RUN apt-get update && apt-get install -qy openjdk-8-jdk --no-install-recommends
 
 # get deps and compile fake snort
 RUN apt-get install -qy libpcap-dev
