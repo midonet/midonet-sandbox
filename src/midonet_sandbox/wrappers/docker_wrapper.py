@@ -75,6 +75,14 @@ class Docker(object):
                 log.info('[{}:{}] Status: {}'.format(repository,
                                                      tag,
                                                      eval_line['status']))
+        if self._registry:
+            # If pulling from an external repo, we need to tag with the
+            # actual image name used in the flavours definition.
+            images = self.list_images(repository)
+            for image in images:
+                for repotag in image['RepoTags']:
+                    if '{}:{}'.format(repository, tag) == repotag:
+                        self._client.tag(image['Id'], name, tag, force=True)
         return True
 
     @exception_safe(ConnectionError, None)
@@ -88,7 +96,12 @@ class Docker(object):
         if self._registry:
             # First tag the local image to map to the new registry
             repository = '{}/{}'.format(self._registry, name)
-            self._client.tag(image, repository, tag, force=True)
+            images = self.list_images(name)
+            for image in images:
+                for repotag in image['RepoTags']:
+                    if '{}:{}'.format(name, tag) == repotag:
+                        self._client.tag(image['Id'], repository, tag,
+                                         force=True)
         else:
             repository = name
         log.info('Now pushing {}:{}'.format(repository, tag))

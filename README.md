@@ -284,3 +284,17 @@ Eg: The following provisioning script will create a tunnel zone and register two
 
     $CLI_COMMAND tunnel-zone $TZONEID add member host $HOST0_ID address $MIDOLMAN1_IP
     $CLI_COMMAND tunnel-zone $TZONEID add member host $HOST1_ID address $MIDOLMAN2_IP
+
+### Pushing and pulling from an external registry
+
+By default, sandbox-manage pulls and pushes to the default registry in docker `index.docker.io`. If you need to interact with a different docker registry, a couple of config parameters should be added to the `sandbox.conf` file. 
+An example of how the configuration file looks like in that case is displayed below.
+
+    $ cat sandbox.conf
+    [sandbox]
+    extra_flavours=sandbox/flavors
+    extra_components=sandbox/components
+    docker_registry=your.own.artifactory.company.com
+    docker_insecure_registry=True
+
+    
