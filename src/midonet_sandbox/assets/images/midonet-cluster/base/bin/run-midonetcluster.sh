@@ -30,7 +30,7 @@ sed -i 's/<root level="INFO">/<root level="DEBUG">/' /etc/midonet-cluster/logbac
 
 echo "Setting up basic conf for cluster..."
 mn-conf set -t default <<EOF
-zookeeper.zookeeper_hosts="$MIDO_ZOOKEEPER_HOSTS"
+zookeeper.zookeeper_hosts="$ZK_HOSTS"
 EOF
 
 if [ -n "$KEYSTONE_HOST" ]; then

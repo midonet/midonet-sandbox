@@ -20,25 +20,5 @@ RUN apt-get -qy install --no-install-recommends \
                         python-openssl \
                         mariadb-client
 
-ONBUILD COPY conf/cloudarchive-ost.list /etc/apt/sources.list.d/cloudarchive-ost.list
-ONBUILD COPY conf/midonet-plugin.list /etc/apt/sources.list.d/midonet-plugin.list
-
-ONBUILD RUN apt-get install -qy ubuntu-cloud-keyring
-ONBUILD RUN apt-get -q update
-ONBUILD RUN apt-get install -qy --no-install-recommends \
-                                neutron-server \
-                                python-neutron-lbaas \
-                                python-neutronclient \
-                                python-keystoneclient \
-                                python-neutron-plugin-midonet
-
-ONBUILD RUN mkdir -p /etc/neutron/plugins/midonet
-ONBUILD RUN mv /midonet_conf/midonet.ini /etc/neutron/plugins/midonet/midonet.ini
-ONBUILD RUN mv /midonet_conf/neutron_lbaas.conf /etc/neutron/neutron_lbaas.conf
-ONBUILD RUN mv /midonet_conf/neutron-server /etc/default/neutron-server
-
-#ONBUILD ADD conf/midonet.ini /etc/neutron/plugins/midonet/midonet.ini
-#ONBUILD ADD conf/neutron_lbaas.conf /etc/neutron/neutron_lbaas.conf
-#ONBUILD ADD conf/neutron_defaults /etc/default/neutron-server
 
 CMD ["/run-neutron.sh"]
