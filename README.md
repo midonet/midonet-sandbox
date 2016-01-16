@@ -147,7 +147,7 @@ The `stop` command will try to gracefully stop the container. However, this migh
 ### Provide your own flavour
 
 To provide your own flavour, just create a folder, place your flavour yml file in it (you may want to copy and modifify a base one
-you find [Here](https://github.com/midokura/midonet-sandbox/tree/master/src/midonet_sandbox/assets/composer/flavours), and specify it in
+you find [Here](https://github.com/midonet/midonet-sandbox/tree/master/src/midonet_sandbox/assets/composer/flavours), and specify it in
 the configuration file:
 
 

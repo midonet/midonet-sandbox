@@ -52,7 +52,6 @@ midolman:
   - "zookeeper2:zk2"
   - "zookeeper3:zk3"
   - "cassandra1:cs1"
-  - "cassandra2:cs2"
 
 cluster:
   extends:
