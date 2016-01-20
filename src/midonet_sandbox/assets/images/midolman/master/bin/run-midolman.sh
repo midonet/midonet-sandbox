@@ -74,6 +74,7 @@ agent.midolman.bgp_keepalive=1s
 agent.midolman.bgp_holdtime=3s
 agent.midolman.bgp_connect_retry=1s
 agent.midolman.lock_memory=false
+agent.midolman.simulation_threads=2
 agent.loggers.root=DEBUG
 agent.haproxy_health_monitor.namespace_cleanup=true
 agent.haproxy_health_monitor.health_monitor_enable=true
