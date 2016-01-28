@@ -15,6 +15,6 @@ RUN apt-get install -qy --no-install-recommends \
                             python-networking-midonet
 
 RUN mkdir -p /etc/neutron/plugins/midonet
-RUN mv /midonet_conf/midonet.ini /etc/neutron/plugins/midonet/midonet.ini
+COPY conf/midonet.ini /etc/neutron/plugins/midonet/midonet.ini
 RUN mv /midonet_conf/neutron_lbaas.conf /etc/neutron/neutron_lbaas.conf
 RUN mv /midonet_conf/neutron-server /etc/default/neutron-server
