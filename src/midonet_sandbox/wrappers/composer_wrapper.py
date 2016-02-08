@@ -81,8 +81,27 @@ class DockerComposer(object):
         temp_yml.write(content)
         return temp_yml.name
 
-    @staticmethod
-    def _apply_override(yml_file, override):
+    def _update_packages(self, override):
+        """
+        Update the contents of the debian package directory inside the override.
+        Debian is the only supported platform for the moment.
+        :param packages_path: absolute path of the override directory
+        :return:
+        """
+        packages_path = os.path.join(override, 'packages')
+        command = \
+            ['sh', '-c',
+             '(cd %s; '
+             'dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz; '
+             'apt-ftparchive -o APT::FTPArchive::Release::Suite="local" '
+             'release . > Release;)'
+             % packages_path]
+        log.debug('Updating local package repository: {}'
+                  .format(' '.join(command)))
+        subprocess.Popen(command).wait()
+        return packages_path
+
+    def _apply_override(self, yml_file, override):
         """
         Apply the override patch to the yml file and return a new yml file
         :param yml_file: the original flavour description
@@ -90,6 +109,10 @@ class DockerComposer(object):
         :return: the new overridden yml file
         """
         components = os.listdir(override)
+        packages_path = None
+        if 'packages' in components:
+            components.remove('packages')
+            packages_path = self._update_packages(override)
 
         with open(yml_file, 'rb') as _f_yml:
             yml_content = load(_f_yml)
@@ -103,15 +126,20 @@ class DockerComposer(object):
                     if not override_path.endswith('/'):
                         override_path = '{}/'.format(override_path)
 
-                    volume = '{}:/override:ro'.format(override_path)
+                    volumes = ['{}:/override:rw'.format(override_path)]
                     log.debug(
                         'Mounting /override for {} to {}'.format(service,
                                                                  override_path))
+                    if packages_path:
+                        volumes.append('{}:/packages:rw'.format(packages_path))
+                        log.debug(
+                            'Mounting /packages for {} to {}'.format(
+                                    service, packages_path))
 
                     if 'volumes' in definition:
-                        definition['volumes'].append(volume)
+                        definition['volumes'].extend(volumes)
                     else:
-                        definition['volumes'] = [volume]
+                        definition['volumes'] = volumes
 
                     cmd = '/override/override.sh'
                     log.debug(

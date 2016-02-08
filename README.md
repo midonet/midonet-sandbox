@@ -239,8 +239,25 @@ Typical uses of an override is to pass a new debian package and install it, or c
     dpkg -i /override/midolman-master.deb
     exec ./run-midolman.sh
 
-**NOTE: if you call another script within your override to start an upstart service (e.g. run-midolman.sh calls /sbin/init to spawn any upstart service), do it through the *exec* command (not a regular invocation).**
+**NOTE: if you call another script within your override to start an upstart service (e.g. run-midolman.sh calls /sbin/init to spawn an upstart service), do it through the *exec* command (not a regular invocation).**
 
+Additionally, you can also create a `packages` directory inside the override that will act as a local debian repository.
+This way, you could copy the packages inside this folder, sandbox will detect it and mount it inside the container with proper repository metadata files.
+The main benefit of this approach is automatic package dependency resolution, not available with the dpkg command.
+To use this local repository, a component override script should execute the following:
+
+    $ cat /workplace/midonet-sandbox/venv/myoverride/midolman/override.sh
+    #!/bin/sh
+    LOCAL_REPO_FILE/etc/apt/sources.list.d/local-repo.list
+    echo "deb file:/packages /" > $LOCAL_REPO_FILE
+    apt-get update -o Dir::Etc::sourcelist=$LOCAL_REPO_FILE
+
+    # After that, the override can install the packages normally with apt-get,
+    # appending /local to the package name. This will take precedence over all
+    # other repos.
+    apt-get install -qy midolman/local
+
+**NOTE: only Debian repositories are supported for the moment.
 
 To apply an override to a sandbox you can use the --override parameter:
 
