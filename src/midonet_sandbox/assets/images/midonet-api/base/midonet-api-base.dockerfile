@@ -3,6 +3,7 @@ MAINTAINER MidoNet (http://midonet.org)
 
 ONBUILD ADD conf/midonet.list /etc/apt/sources.list.d/midonet.list
 ONBUILD RUN curl -k http://repo.midonet.org/packages.midokura.key | apt-key add -
+ONBUILD RUN curl -k http://builds.midonet.org/midorepo.key | apt-key add -
 ONBUILD RUN apt-get -q update && apt-get install -qqy tomcat7 midonet-api python-midonetclient
 
 # Add the apt configuration file
