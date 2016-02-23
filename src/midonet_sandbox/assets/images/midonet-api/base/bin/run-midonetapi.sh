@@ -15,12 +15,28 @@ fi
 
 # Edit web.xml
 
+mkdir /etc/midonet
+cat > /etc/midonet/midonet.conf <<EOF
+[zookeeper]
+zookeeper_hosts = $ZK_HOSTS
+root_key = /midonet/v1
+EOF
+
+mn-conf set -t default <<EOF
+zookeeper.zookeeper_hosts="$ZK_HOSTS"
+cluster.vxgw.enabled=true
+EOF
+
 MIDONET_API_CFG=/usr/share/midonet-api/WEB-INF/web.xml
 
 
 sudo sed -i -e "/<param-name>rest_api-base_uri<\/param-name>/{n;s%.*%    <param-value>http://"$IP":8080/midonet-api</param-value>%g}" $MIDONET_API_CFG
 sudo sed -i -e "/<param-name>zookeeper-zookeeper_hosts<\/param-name>/{n;n;s%.*%    <param-value>"$ZK_HOSTS"</param-value>%g}" $MIDONET_API_CFG
 sudo sed -i -e "s/org.midonet.api.auth.keystone.v2_0.KeystoneService/org.midonet.cluster.auth.MockAuthService/g" $MIDONET_API_CFG
+
+# This likely has no effect
+sudo sed -i -e '/<param-name>midocluster-vxgw_enabled/,/<\/context-param>/ s/false/true/' $MIDONET_API_CFG
+
 
 # Edit JAVA_OPTS
 CATALINA_SH=/usr/share/tomcat7/bin/catalina.sh

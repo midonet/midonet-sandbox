@@ -6,6 +6,10 @@ ONBUILD RUN curl -k http://repo.midonet.org/packages.midokura.key | apt-key add 
 ONBUILD RUN curl -k http://builds.midonet.org/midorepo.key | apt-key add -
 ONBUILD RUN apt-get -q update && apt-get install -qqy tomcat7 midonet-api python-midonetclient
 
+# install midolman to get access to mn-conf, but keep the agent itself disabled
+ONBUILD RUN apt-get install -qqy midolman
+ONBUILD RUN update-rc.d midolman disable
+
 # Add the apt configuration file
 RUN apt-get update && apt-get install -qqy curl
 
