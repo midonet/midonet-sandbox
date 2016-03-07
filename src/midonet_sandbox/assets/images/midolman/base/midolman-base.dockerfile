@@ -1,6 +1,7 @@
 FROM ubuntu-upstart:14.04
 MAINTAINER MidoNet (http://midonet.org)
 
+ADD conf/root_bashrc /root/.bashrc
 ONBUILD ADD conf/midonet.list /etc/apt/sources.list.d/midonet.list
 ONBUILD ADD bin/run-midolman.sh /run-midolman.sh
 ADD src/fake_snort.c /tmp/fake_snort.c
@@ -11,7 +12,7 @@ ONBUILD RUN apt-get -qy update
 ONBUILD RUN apt-get install -qy midolman zkdump python-setproctitle
 
 RUN apt-get -qy update
-RUN apt-get -qy install git mz tcpdump nmap iptables telnet traceroute --no-install-recommends
+RUN apt-get -qy install git mz hping3 tcpdump nmap iptables telnet traceroute --no-install-recommends
 
 # Install Java 8
 RUN apt-get install -qy software-properties-common
