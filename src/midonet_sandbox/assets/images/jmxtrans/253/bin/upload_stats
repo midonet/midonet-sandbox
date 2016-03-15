@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+while getopts ":b:c:p:" opt; do
+    case $opt in
+    b)
+        BUILD=$OPTARG
+        ;;
+    c)
+        COMMITISH=$OPTARG
+        ;;
+    p)
+        PUSHGATEWAY=$OPTARG
+        ;;
+    esac
+done
+
+if [ -z "$BUILD" -o -z "$COMMITISH" -o -z "$PUSHGATEWAY" ]; then
+    echo "Usage: upload_stats -b BUILD -c COMMITISH -p PUSHGATEWAY"
+    exit 1
+fi
+
+for i in /data/*.txt; do
+    cat $i | /usr/bin/prometheize -b $BUILD -c $COMMITISH \
+                                  -j $(basename $i .txt) -p $PUSHGATEWAY ;
+done
