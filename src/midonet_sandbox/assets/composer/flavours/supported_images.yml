@@ -35,5 +35,5 @@ mariadb:
   image: mariadb:5.5
 
 jmxtrans:
-  image: jmxtrans:253
+  image: sandbox/jmxtrans:253
 
