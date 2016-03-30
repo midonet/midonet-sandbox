@@ -22,6 +22,6 @@ if [ -z "$BUILD" -o -z "$COMMITISH" -o -z "$JOB" -o -z "$PUSHGATEWAY" ]; then
     exit 1
 fi
 
-sed 's/\([^.]*\)\.\([^.]*\)\.\([^\t]*\)/\3{instance="\1",group="\2",build="'$BUILD'",commitish="'$COMMITISH'"}/' \
+sed 's`\([^.]*\)\.\([^.]*\)\.\([^\t]*\)`\3{instance="\1",group="\2",build="'$BUILD'",commitish="'$COMMITISH'"}`' \
     | awk '{ gsub("[\\.-]", "_", $1); print $0 }' \
     | curl --data-binary @- http://$PUSHGATEWAY/metrics/job/$JOB
