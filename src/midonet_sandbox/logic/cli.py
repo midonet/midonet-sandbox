@@ -21,7 +21,7 @@ Usage:
     sandbox-manage [options] pull-all <flavour>
     sandbox-manage [options] push <image>...
     sandbox-manage [options] push-all <flavour>
-    sandbox-manage [options] run <flavour> --name=<name> [--override=<override>] [--provision=<script>] [--force]
+    sandbox-manage [options] run <flavour> --name=<name> [--override=<override>] [--provision=<script>] [--force] [--no-recreate]
     sandbox-manage [options] stop <name>... [--remove]
     sandbox-manage [options] stop-all [--remove]
     sandbox-manage [options] kill <name>... [--remove]

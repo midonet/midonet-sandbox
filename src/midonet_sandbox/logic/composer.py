@@ -37,13 +37,15 @@ class Composer(object):
         self._container_builder = container_builder
 
     @exception_safe(ConnectionError, False)
-    def run(self, flavour, name, force=False, override=None, provision=None):
+    def run(self, flavour, name, force=False, override=None, provision=None,
+            no_recreate=False):
         """
         :param flavour: The flavour name
         :param name: The sandbox name
         :param force: Force restarting without asking
         :param override: An override path
         :param provision: A provisioning script path
+        :param no_recreate: Do not recreate containers if they exist on restart
         :return: True if the sandbox has been started, False otherwise
         """
         message = 'Spawning {} sandbox'.format(flavour)
@@ -70,7 +72,7 @@ class Composer(object):
             composer = \
                 self._composer.up(flavour_file,
                                   '{}{}'.format(self.SANDBOX_PREFIX, name),
-                                  override)
+                                  override, no_recreate)
             composer.wait()
 
             if provision:

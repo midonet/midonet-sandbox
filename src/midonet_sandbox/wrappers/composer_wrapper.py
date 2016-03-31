@@ -35,12 +35,13 @@ class DockerComposer(object):
         self._env['DOCKER_HOST'] = \
             self._config.get_sandbox_value('docker_socket')
 
-    def up(self, yml_file, name, override=None):
+    def up(self, yml_file, name, override=None, no_recreate=False):
         """
         Spawn a composer job to orchestrate containers
         :param yml_file: the composer YML file full path
         :param name: the sandbox name
         :param override: the override path
+        :param no_recreate: Do not recreate containers if they exist on restart
         :return: the process output
         """
 
@@ -52,6 +53,8 @@ class DockerComposer(object):
         temp_yml = self._replace_relative_paths(yml_file, temp_yml)
 
         command = ['docker-compose', '-f', temp_yml, '-p', name, 'up', '-d']
+        if no_recreate:
+            command.append('--no-recreate')
         log.debug('Running external process: {}'.format(' '.join(command)))
 
         return subprocess.Popen(command, stderr=subprocess.STDOUT,

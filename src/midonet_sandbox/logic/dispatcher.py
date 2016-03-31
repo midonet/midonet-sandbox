@@ -106,8 +106,10 @@ class Dispatcher(object):
         force = options['--force']
         override = options['--override']
         provision = options['--provision']
+        no_recreate = options['--no-recreate']
 
-        if self._composer.run(flavour, name, force, override, provision):
+        if self._composer.run(flavour, name, force, override, provision,
+                              no_recreate):
             self.print_sandbox_details([name])
             return True
         return False
