@@ -8,3 +8,4 @@ dist/
 Vagrantfile
 *.cfg
 .tox
+*.swp
