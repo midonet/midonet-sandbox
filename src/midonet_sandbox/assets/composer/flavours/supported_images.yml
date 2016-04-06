@@ -10,8 +10,14 @@ cassandra:
 midolman:
   image: sandbox/midolman:master
 
+midolman50:
+  image: sandbox/midolman:v5.0
+
 cluster:
   image: sandbox/midonet-cluster:master
+
+cluster50:
+  image: sandbox/midonet-cluster:v5.0
 
 quagga:
   image: sandbox/quagga:0.99.22
