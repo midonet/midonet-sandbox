@@ -34,6 +34,9 @@ keystoneliberty:
 neutronkilo:
   image: sandbox/neutron:kilo
 
+neutronkilo-fj:
+  image: sandbox/neutron:kilo_fj
+
 neutronliberty:
   image: sandbox/neutron:liberty
 
