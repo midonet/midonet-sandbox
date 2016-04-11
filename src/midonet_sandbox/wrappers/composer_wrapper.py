@@ -34,6 +34,11 @@ class DockerComposer(object):
         self._env = os.environ.copy()
         self._env['DOCKER_HOST'] = \
             self._config.get_sandbox_value('docker_socket')
+        # Increase the docker-compose http timeout
+        self._env['COMPOSE_HTTP_TIMEOUT'] = \
+            self._config.get_sandbox_value('docker_http_timeout')
+        self._env['DOCKER_CLIENT_TIMEOUT'] = \
+            self._config.get_sandbox_value('docker_http_timeout')
 
     def up(self, yml_file, name, override=None, no_recreate=False):
         """

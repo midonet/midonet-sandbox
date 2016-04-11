@@ -17,7 +17,8 @@ DEFAULT_SETTINGS = {
     'docker_socket': 'unix://var/run/docker.sock',
     'docker_remove_intermediate': False,
     'docker_registry': None,
-    'docker_insecure_registry': False
+    'docker_insecure_registry': False,
+    'docker_http_timeout': '300'
 }
 
 
