@@ -2,9 +2,6 @@
 
 while getopts ":b:c:p:" opt; do
     case $opt in
-    b)
-        BUILD=$OPTARG
-        ;;
     c)
         COMMITISH=$OPTARG
         ;;
@@ -14,12 +11,13 @@ while getopts ":b:c:p:" opt; do
     esac
 done
 
-if [ -z "$BUILD" -o -z "$COMMITISH" -o -z "$PUSHGATEWAY" ]; then
-    echo "Usage: upload_stats -b BUILD -c COMMITISH -p PUSHGATEWAY"
+if [ -z "$COMMITISH" -o -z "$PUSHGATEWAY" ]; then
+    echo "Usage: upload_stats -c COMMITISH -p PUSHGATEWAY"
     exit 1
 fi
 
 for i in /data/*.txt; do
-    cat $i | /usr/bin/prometheize -b $BUILD -c $COMMITISH \
+    /usr/bin/preprocess_stats -f $i
+    cat $i | /usr/bin/prometheize -c $COMMITISH \
                                   -j $(basename $i .txt) -p $PUSHGATEWAY ;
 done

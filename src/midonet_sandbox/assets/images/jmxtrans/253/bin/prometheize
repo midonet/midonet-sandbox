@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
 
-while getopts ":b:c:j:p:" opt; do
+while getopts ":c:j:p:" opt; do
     case $opt in
-    b)
-        BUILD=$OPTARG
-        ;;
     c)
         COMMITISH=$OPTARG
         ;;
@@ -17,11 +14,11 @@ while getopts ":b:c:j:p:" opt; do
     esac
 done
 
-if [ -z "$BUILD" -o -z "$COMMITISH" -o -z "$JOB" -o -z "$PUSHGATEWAY" ]; then
-    echo "Usage: prometheize -b BUILD -c COMMITISH -j JOB -p PUSHGATEWAY"
+if [ -z "$COMMITISH" -o -z "$JOB" -o -z "$PUSHGATEWAY" ]; then
+    echo "Usage: prometheize -c COMMITISH -j JOB -p PUSHGATEWAY"
     exit 1
 fi
 
-sed 's`\([^.]*\)\.\([^.]*\)\.\([^\t]*\)`\3{instance="\1",group="\2",build="'$BUILD'",commitish="'$COMMITISH'"}`' \
+sed 's`\([^.]*\)\.\([^.]*\)\.\([^\t]*\)`\3{instance="\1",group="\2",commitish="'$COMMITISH'"}`' \
     | awk '{ gsub("[\\.-]", "_", $1); print $0 }' \
     | curl --data-binary @- http://$PUSHGATEWAY/metrics/job/$JOB
