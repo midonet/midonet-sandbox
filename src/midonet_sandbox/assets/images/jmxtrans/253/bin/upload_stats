@@ -2,22 +2,29 @@
 
 while getopts ":b:c:p:" opt; do
     case $opt in
+    b)
+        BUILD=$OPTARG
+        ;;
     c)
         COMMITISH=$OPTARG
         ;;
-    p)
-        PUSHGATEWAY=$OPTARG
+    I)
+        INFLUX_ENDPOINT=$OPTARG
         ;;
     esac
 done
 
-if [ -z "$COMMITISH" -o -z "$PUSHGATEWAY" ]; then
-    echo "Usage: upload_stats -c COMMITISH -p PUSHGATEWAY"
+if [ -z "$COMMITISH" -o -z "$INFLUX_ENDPOINT" ]; then
+    echo "Usage: upload_stats -c COMMITISH -I INFLUX_ENDPOINT -b BUILD"
     exit 1
+fi
+
+if [ -z "$BUILD" ]; then
+    BUILD="unknown"
 fi
 
 for i in /data/*.txt; do
     /usr/bin/preprocess_stats -f $i
-    cat $i | /usr/bin/prometheize -c $COMMITISH \
-                                  -j $(basename $i .txt) -p $PUSHGATEWAY ;
+    cat $i | /usr/bin/influgate -c $COMMITISH -b $BUILD \
+                                  -j $(basename $i .txt) -I $INFLUX_ENDPOINT ;
 done
