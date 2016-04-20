@@ -13,6 +13,7 @@ RUN sed -i 's/HEAP_SIZE=.*/HEAP_SIZE=128/' /etc/default/jmxtrans
 
 ADD bin/preprocess_stats /usr/bin/preprocess_stats
 ADD bin/prometheize /usr/bin/prometheize
+ADD bin/influgate /usr/bin/influgate
 ADD bin/upload_stats /usr/bin/upload_stats
 
 VOLUME ["/data", "/var/lib/jmxtrans"]
