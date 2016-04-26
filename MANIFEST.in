@@ -1,2 +1,2 @@
-recursive-include *.py
-recursive-include src/midonet_sandbox/assets/*
+recursive-include . *.py
+recursive-include src/midonet_sandbox/assets *
