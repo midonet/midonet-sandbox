@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-while getopts ":b:c:p:" opt; do
+while getopts ":b:c:I:" opt; do
     case $opt in
     b)
         BUILD=$OPTARG
@@ -26,5 +26,5 @@ fi
 for i in /data/*.txt; do
     /usr/bin/preprocess_stats -f $i
     cat $i | /usr/bin/influgate -c $COMMITISH -b $BUILD \
-                                  -j $(basename $i .txt) -I $INFLUX_ENDPOINT ;
+                                -j $(basename $i .txt) -I $INFLUX_ENDPOINT ;
 done
