@@ -33,7 +33,7 @@ RUN mv /pipework/pipework /usr/bin/pipework
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
 RUN mv /sbin/dhclient /usr/bin/dhclient
 
-RUN apt-get update && apt-get install -qy curl && apt-get install -qy git
+RUN apt-get update && apt-get install -qy curl && apt-get install -qy git uuid
 
 # Expose bgpd port in case it's a gateway
 EXPOSE 179
