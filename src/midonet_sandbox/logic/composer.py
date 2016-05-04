@@ -80,7 +80,12 @@ class Composer(object):
                 if os.path.isfile(provision) and os.access(provision, os.X_OK):
                     log.info(
                         'Running provisioning script: {}'.format(provision))
-                    p = subprocess.Popen(provision, stderr=subprocess.STDOUT)
+                    provisioning_env = {
+                        "SANDBOX_NAME": name
+                    }
+                    p = subprocess.Popen(
+                        provision, stderr=subprocess.STDOUT,
+                        env=dict(os.environ, **provisioning_env))
                     p.wait()
                 else:
                     log.error(
