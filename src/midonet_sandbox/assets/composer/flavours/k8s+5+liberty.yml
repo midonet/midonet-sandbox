@@ -1,0 +1,120 @@
+kubelet:
+  extends:
+    file: $BASE/kubernetes.yml
+    service: kubelet
+  net: host
+  pid: host
+  privileged: true
+  command: ['/run_kubernetes.sh']
+  environment:
+  - K8S_API=http://172.17.0.1:8080
+  volumes:
+  - /etc/midolman
+  volumes_from:
+  - zookeeper1
+  - midolman
+
+raven:
+  extends:
+    file: $BASE/raven.yml
+    service: raven
+  depends_on:
+  - kubelet
+  - neutron
+  links:
+  - keystone:keystone
+  - neutron:neutron
+
+midolman:
+  extends:
+    file: $BASE/midolman.yml
+    service: midolman
+  image: sandbox/midolman:v5.0
+  net: host
+  volumes:
+  - /var/log/sandbox/midolman:/var/log/midolman
+  - /etc/sandbox
+  command: ['/run-midolman-host.sh']
+  volumes_from:
+  - zookeeper1
+
+zookeeper1:
+  extends:
+    file: $BASE/zookeeper.yml
+    service: zookeeper
+  image: sandbox/zookeeper:3.4.5
+  hostname: zookeeper1
+  volumes:
+  - /zoo/conf/
+  - /var/log/sandbox/zookeeper/1:/var/log/zookeeper
+  environment:
+  - ZOO_ID=1
+
+zookeeper2:
+  extends:
+    file: $BASE/zookeeper.yml
+    service: zookeeper
+  image: sandbox/zookeeper:3.4.5
+  hostname: zookeeper2
+  environment:
+  - ZOO_ID=2
+  volumes:
+  - /var/log/sandbox/zookeeper/2:/var/log/zookeeper
+  volumes_from:
+  - zookeeper1
+
+zookeeper3:
+  extends:
+    file: $BASE/zookeeper.yml
+    service: zookeeper
+  image: sandbox/zookeeper:3.4.5
+  hostname: zookeeper3
+  environment:
+  - ZOO_ID=3
+  volumes:
+  - /var/log/sandbox/zookeeper/3:/var/log/zookeeper
+  volumes_from:
+  - zookeeper1
+  links:
+  - zookeeper1:zk1
+  - zookeeper2:zk2
+
+cluster:
+  extends:
+    file: $BASE/midonet-cluster.yml
+    service: cluster
+  image: sandbox/midonet-cluster:v5.0
+  hostname: cluster
+  links:
+  - "zookeeper1:zk1"
+  - "zookeeper2:zk2"
+  - "zookeeper3:zk3"
+  - "keystone:keystone"
+  volumes:
+  - /var/log/sandbox/midonet-cluster:/var/log/midonet-cluster
+
+keystone:
+  extends:
+    file: $BASE/keystone.yml
+    service: keystone
+  image: sandbox/keystone:liberty
+  hostname: keystone
+  volumes:
+  - /var/log/sandbox/keystone:/var/log/keystone
+
+mariadb:
+  image: mariadb:5.5
+  hostname: mariadb
+  environment:
+  - MYSQL_ROOT_PASSWORD=root
+
+neutron:
+  extends:
+    file: $BASE/neutron.yml
+    service: neutron
+  image: sandbox/neutron:liberty
+  hostname: neutron
+  links:
+  - "keystone:keystone"
+  - "cluster:midonetapi"
+  - "mariadb:mariadb"

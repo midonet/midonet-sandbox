@@ -1,0 +1,4 @@
+raven:
+  image: sandbox/raven:base
+  volumes:
+  - /var/log/sandbox/raven:/var/log/raven

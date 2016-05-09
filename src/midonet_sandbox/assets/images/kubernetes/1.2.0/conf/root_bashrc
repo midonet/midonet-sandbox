@@ -1,0 +1,4 @@
+if [ -n "$(ip netns identify $$)" ]; then
+   current_netns=$(ip netns identify $$)
+fi
+export PS1='${current_netns:+($current_netns)}\u@\h:\w\$ '

@@ -1,0 +1,90 @@
+zookeeper1:
+  extends:
+    file: $BASE/zookeeper.yml
+    service: zookeeper
+  image: sandbox/zookeeper:3.4.5
+  hostname: zookeeper1
+  volumes:
+  - /zoo/conf/
+  environment:
+  - ZOO_ID=1
+
+zookeeper2:
+  extends:
+    file: $BASE/zookeeper.yml
+    service: zookeeper
+  image: sandbox/zookeeper:3.4.5
+  hostname: zookeeper2
+  environment:
+  - ZOO_ID=2
+  volumes_from:
+  - zookeeper1
+
+zookeeper3:
+  extends:
+    file: $BASE/zookeeper.yml
+    service: zookeeper
+  image: sandbox/zookeeper:3.4.5
+  hostname: zookeeper3
+  environment:
+  - ZOO_ID=3
+  volumes_from:
+  - zookeeper1
+  links:
+  - zookeeper1:zk1
+  - zookeeper2:zk2
+
+cassandra1:
+  extends:
+    file: $BASE/cassandra.yml
+    service: cassandra
+  image: sandbox/cassandra:2.0
+  hostname: cassandra1
+
+midolman:
+  extends:
+    file: $BASE/midolman.yml
+    service: midolman
+  image: sandbox/midolman:v5.0
+  hostname: midolman
+  links:
+  - "zookeeper1:zk1"
+  - "zookeeper2:zk2"
+  - "zookeeper3:zk3"
+  - "cassandra1:cs1"
+
+cluster:
+  extends:
+    file: $BASE/midonet-cluster.yml
+    service: cluster
+  image: sandbox/midonet-cluster:v5.0
+  hostname: cluster
+  links:
+  - "zookeeper1:zk1"
+  - "zookeeper2:zk2"
+  - "zookeeper3:zk3"
+  - "keystone:keystone"
+
+keystone:
+  extends:
+    file: $BASE/keystone.yml
+    service: keystone
+  image: sandbox/keystone:liberty
+  hostname: keystone
+
+mariadb:
+  image: mariadb:5.5
+  hostname: mariadb
+  environment:
+  - MYSQL_ROOT_PASSWORD=root
+
+neutron:
+  extends:
+    file: $BASE/neutron.yml
+    service: neutron
+  image: sandbox/neutron:liberty
+  hostname: neutron
+  links:
+  - "keystone:keystone"
+  - "cluster:midonetapi"
+  - "mariadb:mariadb"

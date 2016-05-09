@@ -1,0 +1,8 @@
+kubelet:
+  image: sandbox/kubernetes:1.2.0
+  volumes:
+  - /:/rootfs:ro
+  - /sys:/sys:ro
+  - /var/lib/docker:/var/lib/docker:rw
+  - /var/lib/kubelet:/var/lib/kubelet:rw
+  - /var/run:/var/run:rw
