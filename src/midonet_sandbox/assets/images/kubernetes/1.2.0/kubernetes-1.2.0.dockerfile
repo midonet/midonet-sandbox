@@ -6,9 +6,9 @@ ADD conf/root_bashrc /root/.bashrc
 ADD bin/create_veth_pair /usr/local/bin/create_veth_pair
 ADD conf/midonet.list /etc/apt/sources.list.d/midonet.list
 ADD bin/run_kubernetes.sh /run_kubernetes.sh
+ADD conf/debian.list /etc/apt/sources.list.d/debian.list
 
-# Java 8 repository for Debian
-RUN echo "deb http://http.debian.net/debian jessie-backports main" > /etc/apt/sources.list.d/java8.list
+RUN rm /etc/apt/sources.list
 
 # MidoNet Keys
 RUN curl -k http://repo.midonet.org/packages.midokura.key | apt-key add -
