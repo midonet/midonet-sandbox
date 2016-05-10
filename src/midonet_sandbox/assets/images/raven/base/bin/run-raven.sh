@@ -7,6 +7,7 @@ export IDENTITY_URL=http://keystone:35357/v2.0/
 export OS_URL=http://neutron:9696/
 export K8S_API=http://172.17.0.1:8080
 export PS1="\u@\h \W(keystone_admin)\$ "
+export SERVICE_CLUSTER_IP_RANGE=10.0.0.1/24
 
 # Raven stops if any problem occurs login into the keystone
 # Since we have to wait until the provisioning script has run,
