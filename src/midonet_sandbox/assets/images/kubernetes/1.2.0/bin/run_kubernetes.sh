@@ -18,6 +18,12 @@ echo 'Waiting for config file to appear...'
 while [ ! -f /zoo/conf/zoo.cfg ] ; do
     sleep 1
 done
+
+echo 'Waiting for midonet_host_id file to appear...'
+while [ ! -f /etc/sandbox/midonet_host_id.properties ] ; do
+    sleep 1
+done
+
 echo 'Config file found, starting server.'
 
 MIDO_ZOOKEEPER_HOSTS=''
