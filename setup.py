@@ -32,6 +32,7 @@ setup(
     packages=find_packages(SRC_DIR, exclude=["tests"]),
     package_data={'': assets()},
     install_requires=['docker-compose==1.3.1',
+                      'dockerfile-parse==0.0.5',
                       'docopt==0.6.2',
                       'tabulate==0.7.5',
                       'humanize==0.5.1',

@@ -4,6 +4,7 @@
 
 import logging
 
+from dockerfile_parse import DockerfileParser
 from injector import inject, singleton
 
 import os
@@ -64,6 +65,12 @@ class Assets(object):
                 'Image file not found: {}'.format(abs_image_path))
 
         return abs_image_path
+
+    def get_image_base(self, image, tag):
+        abs_image_path = self.get_abs_image_dockerfile(image, tag)
+        doc = DockerfileParser()
+        doc.dockerfile_path = abs_image_path
+        return doc.baseimage
 
     def list_flavours_files(self):
         flavours = list()

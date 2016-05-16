@@ -37,15 +37,14 @@ class Builder(object):
         name, tag = image.split(':')
 
         # Build the base image first if exists
-        if tag != 'base':
-            try:
-                base_dockerfile = self._assets.get_abs_image_dockerfile(name,
-                                                                        'base')
-                if not self._docker.build(base_dockerfile,
-                                          'sandbox/{}:base'.format(name)):
+        base_image = self._assets.get_image_base(name, tag)
+        if base_image:
+            base_name, base_tag = base_image.split(':')
+            if base_name.startswith("sandbox/"):
+                if not self.build(base_image.replace("sandbox/", "", 1)):
+                    log.info(
+                        'Base image {} not found, skipping'.format(base_image))
                     return False
-            except ImageNotFound:
-                log.info('Base image {}:base not found, skipping'.format(name))
 
         # Build the actual image
         try:
