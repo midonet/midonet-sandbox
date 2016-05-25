@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Mount in memory the log file to reduce IO
+mount -t tmpfs -o size=1024m tmpfs /var/log/quagga
+
 FILE=/etc/quagga/bgpd.conf
 
 # Use defaults
@@ -9,6 +12,8 @@ BGP_ADVERTISE_DEFAULT_NETWORK=${BGP_ADVERTISE_DEFAULT_NETWORK:-yes}
 BGP_SCAN_TIME=${BGP_SCAN_TIME:-5}
 BGP_NEIGHBOR_ADVERTISEMENT_INTERVAL=${BGP_NEIGHBOR_ADVERTISEMENT_INTERVAL:=1}
 BGP_ONLY_ADVERTISE_LOCAL=${BGP_ONLY_ADVERTISE_LOCAL:-no}
+BGP_PASSIVE_SPEAKER=${BGP_PASSIVE_SPEAKER:-no}
+
 # Echo parameters' value
 set | grep "^BGP"
 
@@ -39,6 +44,12 @@ function add_neighbors()
         add_to_neighbor $IP \
                "advertisement-interval $BGP_NEIGHBOR_ADVERTISEMENT_INTERVAL"
         add_to_neighbor $IP "next-hop-self"
+
+        # Define wether this quagga is an active or passive spearker
+        if [ "$BGP_PASSIVE_SPEAKER" == "yes" ]; then
+            add_to_neighbor $IP "passive"
+        fi
+
         if [ "$BGP_ONLY_ADVERTISE_LOCAL" == "yes" ]; then
             add_to_neighbor $IP "filter-list access-list-local out"
         fi
@@ -65,6 +76,7 @@ sed -i -e 's/zebra=no/zebra=yes/' -e 's/bgpd=no/bgpd=yes/' /etc/quagga/daemons
 
 echo Modifying daemon configuration file $FILE ...
 add_neighbors
+
 # Write advertised networks on bgpd config file if specified
 for NETWORK in `env | grep ADVERTISED_NETWORK | cut -d= -f2`; do
     echo "    network $NETWORK" >> $FILE
@@ -74,15 +86,18 @@ for NETWORK in `env | grep ADVERTISED_NETWORK | cut -d= -f2`; do
     # Set the network to the lo interface to emulate internet access
     ip addr add $NETWORK dev lo
 done
+
 # Set max paths if defined
 if [ -n "$BGP_MAX_PATHS" ]; then
     echo "Setting max_paths to $BGP_MAX_PATHS"
     sed -i "s/maximum-paths 2/maximum-paths $BGP_MAX_PATHS/" $FILE
 fi
+
 # Define access list used to filter relay of non-local routes
 if [ "$BGP_ONLY_ADVERTISE_LOCAL" == "yes" ]; then
   echo 'ip as-path access-list access-list-local permit ^$' >> $FILE
 fi
+
 # Setting env vars in bgpd config file
 sed -i "s/bgp router-id 10.255.255.255/bgp router-id $BGP_ROUTER_ID/" $FILE
 sed -i "s/router bgp 64512/router bgp $BGP_AS/" $FILE
