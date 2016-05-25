@@ -19,3 +19,5 @@ RUN apt-get install -qy --no-install-recommends \
 RUN mv /midonet_conf/neutron-server /etc/default/neutron-server
 RUN mv /midonet_conf/neutron_lbaas.conf /etc/neutron/neutron_lbaas.conf
 RUN mv /midonet_conf/neutron_vpnaas.conf /etc/neutron/neutron_vpnaas.conf
+
+RUN /setup-mariadb.sh

@@ -1,10 +1,11 @@
 #!/bin/bash -x
 
-# Prepare neutron database before starting
-mysqladmin -w120 --connect-timeout 1 -h mariadb -uroot -proot -f drop neutron
-mysqladmin -w120 --connect-timeout 1 -h mariadb -uroot -proot -f create neutron
+mkdir -p /var/lib/mysql
 
-neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/midonet/midonet.ini upgrade head
-midonet-db-manage --config-file /etc/neutron/plugins/midonet/midonet.ini upgrade head
+# keep mariadb in-memory for performance unless is set to false
+if [ "${MARIADB_IN_MEM}" != "false" ]; then
+    mount -t tmpfs -o size=1024m tmpfs /var/lib/mysql
+    tar -C / -zxf /mariadb-data.tgz
+fi
 
 exec /sbin/init
