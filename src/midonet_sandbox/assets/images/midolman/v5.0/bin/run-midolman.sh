@@ -23,7 +23,7 @@ sysctl -w net.ipv6.conf.lo.disable_ipv6=1
 
 # Default cassandra replication factor
 if [ -z "$CASS_FACTOR" ]; then
-    CASS_FACTOR=3
+    CASS_FACTOR=1
 fi
 
 # Default mido_zookeeper_key
