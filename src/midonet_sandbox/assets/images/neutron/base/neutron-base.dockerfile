@@ -14,9 +14,19 @@ COPY conf/neutron_vpnaas.conf /midonet_conf/neutron_vpnaas.conf
 
 RUN apt-get -q update && apt-get install -qy curl
 RUN curl -k http://builds.midonet.org/midorepo.key | apt-key add -
+RUN { echo mariadb-server-5 mysql-server/root_password password 'root'; \
+      echo mariadb-server-5 mysql-server/root_password_again password 'root'; \
+      } | debconf-set-selections
 RUN apt-get -qy install --no-install-recommends \
                         python-mysql.connector \
                         python-openssl \
-                        mariadb-client
+                        mariadb-client \
+                        mariadb-server
+
+RUN sed -Ei 's/^(bind-address|log)/#&/' /etc/mysql/my.cnf \
+        && echo 'skip-host-cache\nskip-name-resolve' | awk '{ print } $1 == "[mysqld]" && c == 0 { c = 1; system("cat") }' /etc/mysql/my.cnf > /tmp/my.cnf \
+        && mv /tmp/my.cnf /etc/mysql/my.cnf
+
+COPY bin/setup-mariadb.sh /setup-mariadb.sh
 
 CMD ["/run-neutron.sh"]

@@ -40,9 +40,6 @@ neutronkilo-fj:
 neutronliberty:
   image: sandbox/neutron:liberty
 
-mariadb:
-  image: mariadb:5.5
-
 jmxtrans:
   image: sandbox/jmxtrans:253
 

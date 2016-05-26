@@ -72,12 +72,6 @@ keystone:
   image: sandbox/keystone:kilo
   hostname: keystone
 
-mariadb:
-  image: mariadb:5.5
-  hostname: mariadb
-  environment:
-  - MYSQL_ROOT_PASSWORD=root
-
 neutron:
   extends:
     file: $BASE/neutron.yml
@@ -87,4 +81,3 @@ neutron:
   links:
   - "keystone:keystone"
   - "cluster:midonetapi"
-  - "mariadb:mariadb"

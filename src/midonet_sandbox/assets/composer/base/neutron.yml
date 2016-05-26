@@ -1,4 +1,5 @@
 neutron:
   image: sandbox/neutron
+  privileged: true
   volumes:
   - /etc/localtime:/etc/localtime:ro
