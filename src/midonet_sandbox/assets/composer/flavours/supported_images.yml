@@ -37,6 +37,9 @@ neutronkilo:
 neutronkilo-fj:
   image: sandbox/neutron:kilo_fj
 
+neutronkilo_v1:
+  image: sandbox/neutron:kilo_v1
+
 neutronliberty:
   image: sandbox/neutron:liberty
 
