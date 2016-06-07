@@ -81,5 +81,12 @@ agent.haproxy_health_monitor.health_monitor_enable=true
 agent.haproxy_health_monitor.haproxy_file_loc=/etc/midolman/l4lb/
 EOF
 
+# enable debug logs from first boot
+sed -i 's/<root level="INFO">/<root level="DEBUG">/' /etc/midolman/logback.xml
+sed -i '/<root level="DEBUG">/i \    <logger name="org.apache.zookeeper" level="INFO" />' /etc/midolman/logback.xml
+sed -i '/<root level="DEBUG">/i \    <logger name="org.apache.cassandra" level="INFO" />' /etc/midolman/logback.xml
+sed -i '/<root level="DEBUG">/i \    <logger name="me.prettyprint.cassandra" level="INFO" />' /etc/midolman/logback.xml
+sed -i '/<root level="DEBUG">/i \    <logger name="org.eclipse.jetty" level="INFO" />' /etc/midolman/logback.xml
+
 echo "Starting agent!"
 exec /sbin/init
