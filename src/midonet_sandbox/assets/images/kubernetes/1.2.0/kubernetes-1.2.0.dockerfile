@@ -30,10 +30,9 @@ RUN git clone http://github.com/jpetazzo/pipework /pipework
 RUN mv /pipework/pipework /usr/bin/pipework
 
 # We need to have the CNI driver installed in the kubelet container
-RUN apt-get -qy update && apt-get -qy install curl git python3-setuptools python3-pip
+RUN apt-get -qy update && apt-get -qy install curl git python3 gcc python3-dev
 RUN git clone http://github.com/midonet/kuryr /opt/kuryr -b k8s
-RUN cd /opt/kuryr && pip3 install -r requirements.txt
-RUN cd /opt/kuryr && python3 setup.py install
+RUN cd /opt/kuryr && curl https://bootstrap.pypa.io/get-pip.py | python3 - && pip3 install .
 RUN mkdir -p /usr/libexec/kubernetes/kubelet-plugins/net/exec/
 COPY conf/kuryr.conf /usr/libexec/kubernetes/kubelet-plugins/net/exec/kuryr.conf
 RUN mkdir -p /usr/local/lib/python3.4/dist-packages/usr/libexec/kuryr
