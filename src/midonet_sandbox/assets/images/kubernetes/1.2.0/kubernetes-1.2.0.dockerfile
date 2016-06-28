@@ -46,8 +46,8 @@ RUN rm /etc/kubernetes/manifests/kube-proxy.json
 RUN apt-get -qy update
 RUN apt-get install -qy wget
 RUN apt-get install python-setproctitle
-RUN wget https://builds.midonet.org/midonet-5/deb/stable/midolman_5.1.0_all.deb -O /tmp/midolman_5.1.0_all.deb
-RUN dpkg -i --ignore-depends=openvswitch-datapath-dkms,bridge-utils,haproxy,quagga,libreswan,iproute,midonet-tools /tmp/midolman_5.1.0_all.deb
+RUN wget https://builds.midonet.org/midonet-5.1/deb/stable/midolman_5.1.1_all.deb -O /tmp/midolman_5.1.1_all.deb
+RUN dpkg -i --ignore-depends=openvswitch-datapath-dkms,bridge-utils,haproxy,quagga,libreswan,iproute,midonet-tools /tmp/midolman_5.1.1_all.deb
 
 # This step is needed to access to K8s server from the bridged network of the containers
 RUN sed -i s/--insecure-bind-address=127.0.0.1/--insecure-bind-address=0.0.0.0/ /etc/kubernetes/manifests/master.json
