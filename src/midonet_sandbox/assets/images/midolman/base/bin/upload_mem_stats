@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+while getopts ":b:c:I:" opt; do
+    case $opt in
+    b)
+        BUILD=$OPTARG
+        ;;
+    c)
+        COMMITISH=$OPTARG
+        ;;
+    I)
+        INFLUX_ENDPOINT=$OPTARG
+        ;;
+    esac
+done
+
+if [ -z "$COMMITISH" -o -z "$INFLUX_ENDPOINT" ]; then
+    echo "Usage: upload_mem_stats -c COMMITISH -I INFLUX_ENDPOINT -b BUILD"
+    exit 1
+fi
+
+if [ -z "$BUILD" ]; then
+    BUILD="unknown"
+fi
+
+# trigger a gc before taking the log
+jcmd $(jps  | awk '/Midolman/ { print $1 }') GC.run
+
+MEGS=$(cat /var/log/midolman/gc-* | awk -F'[ .]' '/Eden/ { SUM+=$5 } END {print SUM}')
+HOST=$(hostname)
+NOW="$(date +%s)000000000"
+
+echo "eden_megs_allocated,instance=$HOST,group=midonet,commitish=$COMMITISH,build=$BUILD value=$MEGS $NOW" \
+    | curl --data-binary @- $INFLUX_ENDPOINT
+

@@ -3,6 +3,7 @@ MAINTAINER MidoNet (http://midonet.org)
 
 ADD conf/root_bashrc /root/.bashrc
 ADD bin/create_veth_pair /usr/local/bin/create_veth_pair
+ADD bin/upload_mem_stats /usr/local/bin/upload_mem_stats
 ONBUILD ADD conf/midonet.list /etc/apt/sources.list.d/midonet.list
 ONBUILD ADD bin/run-midolman.sh /run-midolman.sh
 ADD src/fake_snort.c /tmp/fake_snort.c
