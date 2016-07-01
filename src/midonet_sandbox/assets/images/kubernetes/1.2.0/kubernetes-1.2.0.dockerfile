@@ -30,10 +30,9 @@ RUN git clone http://github.com/jpetazzo/pipework /pipework
 RUN mv /pipework/pipework /usr/bin/pipework
 
 # We need to have the CNI driver installed in the kubelet container
-RUN apt-get -qy update && apt-get -qy install curl git python3-setuptools python3-pip
+RUN apt-get -qy update && apt-get -qy install curl git python3 gcc python3-dev
 RUN git clone http://github.com/midonet/kuryr /opt/kuryr -b k8s
-RUN cd /opt/kuryr && pip3 install -r requirements.txt
-RUN cd /opt/kuryr && python3 setup.py install
+RUN cd /opt/kuryr && curl https://bootstrap.pypa.io/get-pip.py | python3 - && pip3 install .
 RUN mkdir -p /usr/libexec/kubernetes/kubelet-plugins/net/exec/
 COPY conf/kuryr.conf /usr/libexec/kubernetes/kubelet-plugins/net/exec/kuryr.conf
 RUN mkdir -p /usr/local/lib/python3.4/dist-packages/usr/libexec/kuryr
@@ -46,8 +45,8 @@ RUN rm /etc/kubernetes/manifests/kube-proxy.json
 RUN apt-get -qy update
 RUN apt-get install -qy wget
 RUN apt-get install python-setproctitle
-RUN wget https://builds.midonet.org/midonet-5/deb/stable/midolman_5.1.0_all.deb -O /tmp/midolman_5.1.0_all.deb
-RUN dpkg -i --ignore-depends=openvswitch-datapath-dkms,bridge-utils,haproxy,quagga,libreswan,iproute,midonet-tools /tmp/midolman_5.1.0_all.deb
+RUN wget https://builds.midonet.org/midonet-5.1/deb/stable/midolman_5.1.1_all.deb -O /tmp/midolman_5.1.1_all.deb
+RUN dpkg -i --ignore-depends=openvswitch-datapath-dkms,bridge-utils,haproxy,quagga,libreswan,iproute,midonet-tools /tmp/midolman_5.1.1_all.deb
 
 # This step is needed to access to K8s server from the bridged network of the containers
 RUN sed -i s/--insecure-bind-address=127.0.0.1/--insecure-bind-address=0.0.0.0/ /etc/kubernetes/manifests/master.json
