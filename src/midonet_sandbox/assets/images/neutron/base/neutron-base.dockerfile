@@ -24,7 +24,7 @@ RUN apt-get -qy install --no-install-recommends \
                         mariadb-server
 
 RUN sed -Ei 's/^(bind-address|log)/#&/' /etc/mysql/my.cnf \
-        && echo 'skip-host-cache\nskip-name-resolve' | awk '{ print } $1 == "[mysqld]" && c == 0 { c = 1; system("cat") }' /etc/mysql/my.cnf > /tmp/my.cnf \
+        && echo 'skip-host-cache\nskip-name-resolve\nmax_connections = 2500' | awk '{ print } $1 == "[mysqld]" && c == 0 { c = 1; system("cat") }' /etc/mysql/my.cnf > /tmp/my.cnf \
         && mv /tmp/my.cnf /etc/mysql/my.cnf
 
 COPY bin/setup-mariadb.sh /setup-mariadb.sh
