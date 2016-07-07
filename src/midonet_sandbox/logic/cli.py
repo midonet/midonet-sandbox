@@ -7,7 +7,7 @@ import keyword
 
 from docopt import docopt
 import sys
-from injection import get_injector
+from midonet_sandbox.logic.injection import get_injector
 from midonet_sandbox.assets.assets import BASE_ASSETS_PATH
 from midonet_sandbox.logic.dispatcher import Dispatcher
 from midonet_sandbox.utils import configure_logging
