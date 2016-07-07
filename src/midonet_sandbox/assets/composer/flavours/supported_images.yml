@@ -46,9 +46,8 @@ neutronliberty:
 jmxtrans:
   image: sandbox/jmxtrans:253
 
-# Disabled until fixed
-#kubernetes:
-#  image: sandbox/kubernetes:1.2.0
-#
-#raven:
-#  image: sandbox/raven:base
+kubernetes:
+  image: sandbox/kubernetes:1.2.0
+
+raven:
+  image: sandbox/raven:base
