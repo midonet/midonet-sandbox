@@ -29,7 +29,7 @@ midolman:
   extends:
     file: $BASE/midolman.yml
     service: midolman
-  image: sandbox/midolman:v5.0
+  image: sandbox/midolman:v5.2
   net: host
   volumes:
   - /var/log/sandbox/midolman:/var/log/midolman
@@ -83,7 +83,7 @@ cluster:
   extends:
     file: $BASE/midonet-cluster.yml
     service: cluster
-  image: sandbox/midonet-cluster:v5.0
+  image: sandbox/midonet-cluster:v5.2
   hostname: cluster
   links:
   - "zookeeper1:zk1"
