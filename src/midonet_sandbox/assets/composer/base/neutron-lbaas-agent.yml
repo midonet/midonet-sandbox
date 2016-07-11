@@ -1,0 +1,5 @@
+neutron-lbaas-agent:
+  image: sandbox/neutron-lbaas
+  privileged: true
+  volumes:
+  - /etc/localtime:/etc/localtime:ro

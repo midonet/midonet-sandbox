@@ -14,4 +14,4 @@ export SERVICE_CLUSTER_IP_RANGE=10.0.0.1/24
 # we have to set this sleep
 sleep 60
 
-raven > /var/log/raven/raven.log
+raven | tee /var/log/raven/raven.log

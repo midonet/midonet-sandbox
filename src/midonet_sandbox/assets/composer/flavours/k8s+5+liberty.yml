@@ -1,3 +1,16 @@
+rabbitmq:
+  image: rabbitmq:3
+  net: host
+  hostname: rabbitmq
+
+lbaasagent:
+  image: sandbox/neutron-lbaas:liberty
+  hostname: neutron-lbaas
+  net: host
+  privileged: true
+  volumes_from:
+  - midolman
+
 kubelet:
   extends:
     file: $BASE/kubernetes.yml
@@ -34,6 +47,7 @@ midolman:
   volumes:
   - /var/log/sandbox/midolman:/var/log/midolman
   - /etc/sandbox
+  - /var/run:/var/run:rw
   command: ['/run-midolman-host.sh']
   volumes_from:
   - zookeeper1
@@ -108,6 +122,7 @@ neutron:
     service: neutron
   image: sandbox/neutron:liberty
   hostname: neutron
+  command: ['/run-neutron-rabbit.sh']
   links:
   - "keystone:keystone"
   - "cluster:midonetapi"

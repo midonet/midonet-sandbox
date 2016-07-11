@@ -49,6 +49,9 @@ neutronkilo_v1:
 neutronliberty:
   image: sandbox/neutron:liberty
 
+neutronlbaasliberty:
+  image: sandbox/neutron-lbaas:liberty
+
 jmxtrans:
   image: sandbox/jmxtrans:253
 

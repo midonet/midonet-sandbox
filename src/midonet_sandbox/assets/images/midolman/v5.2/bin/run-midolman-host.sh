@@ -87,4 +87,7 @@ sed -i '/<root level="DEBUG">/i \    <logger name="me.prettyprint.cassandra" lev
 sed -i '/<root level="DEBUG">/i \    <logger name="org.eclipse.jetty" level="INFO" />' /etc/midolman/logback.xml
 
 echo "Starting agent!"
-exec /sbin/init
+
+/usr/share/midolman/midolman-prepare
+
+/usr/share/midolman/midolman-start

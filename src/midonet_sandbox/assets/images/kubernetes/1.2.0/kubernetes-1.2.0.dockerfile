@@ -45,7 +45,7 @@ RUN rm /etc/kubernetes/manifests/kube-proxy.json
 RUN apt-get -qy update
 RUN apt-get install -qy wget
 RUN apt-get install python-setproctitle
-RUN cd apt-get download midolman \
+RUN apt-get download midolman \
     && mv midolman* /tmp/midolman.deb \
     && dpkg -i \
           --ignore-depends=openvswitch-datapath-dkms,bridge-utils,haproxy,quagga,libreswan,iproute,midonet-tools \

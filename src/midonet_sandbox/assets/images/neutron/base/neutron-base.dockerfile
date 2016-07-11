@@ -5,6 +5,7 @@ COPY conf/midonet.list /etc/apt/sources.list.d/midonet.list
 COPY conf/keystonerc /keystonerc
 COPY conf/midonetrc /root/.midonetrc
 COPY bin/run-neutron.sh /run-neutron.sh
+COPY bin/run-neutron-rabbit.sh /run-neutron-rabbit.sh
 
 # These files needs to be moved after neutron installation
 # Put in a temporary directory so they can be placed correctly on the child image
