@@ -6,6 +6,7 @@ ADD bin/create_veth_pair /usr/local/bin/create_veth_pair
 ADD bin/upload_mem_stats /usr/local/bin/upload_mem_stats
 ONBUILD ADD conf/midonet.list /etc/apt/sources.list.d/midonet.list
 ONBUILD ADD bin/run-midolman.sh /run-midolman.sh
+ADD bin/run-midolman-host.sh /run-midolman-host.sh
 ADD src/fake_snort.c /tmp/fake_snort.c
 
 ONBUILD RUN curl -k http://repo.midonet.org/packages.midokura.key | apt-key add -
