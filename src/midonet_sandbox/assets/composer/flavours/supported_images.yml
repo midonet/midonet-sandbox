@@ -37,6 +37,9 @@ keystonekilo:
 keystoneliberty:
   image: sandbox/keystone:liberty
 
+keystonemitaka:
+  image: sandbox/keystone:mitaka
+
 neutronkilo:
   image: sandbox/neutron:kilo
 
@@ -48,6 +51,9 @@ neutronkilo_v1:
 
 neutronliberty:
   image: sandbox/neutron:liberty
+
+neutronmitaka:
+  image: sandbox/neutron:mitaka
 
 neutronlbaasliberty:
   image: sandbox/neutron-lbaas:liberty
