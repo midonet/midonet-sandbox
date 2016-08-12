@@ -12,7 +12,7 @@ ADD src/fake_snort.c /tmp/fake_snort.c
 ONBUILD RUN curl -k http://repo.midonet.org/packages.midokura.key | apt-key add -
 ONBUILD RUN curl -k http://builds.midonet.org/midorepo.key | apt-key add -
 ONBUILD RUN apt-get -qy update
-ONBUILD RUN apt-get install -qy midolman zkdump python-setproctitle
+ONBUILD RUN apt-get install -qy --no-install-recommends midolman zkdump python-setproctitle
 
 RUN apt-get -qy update
 RUN apt-get -qy install git mz hping3 tcpdump nmap iptables telnet traceroute iputils-arping --no-install-recommends
