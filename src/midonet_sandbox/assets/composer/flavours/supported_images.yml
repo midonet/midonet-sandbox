@@ -60,9 +60,3 @@ neutronlbaasliberty:
 
 jmxtrans:
   image: sandbox/jmxtrans:253
-
-kubernetes:
-  image: sandbox/kubernetes:1.2.0
-
-raven:
-  image: sandbox/raven:base
