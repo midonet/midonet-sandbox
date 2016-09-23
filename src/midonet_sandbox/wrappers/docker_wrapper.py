@@ -19,7 +19,7 @@ class Docker(object):
                  insecure_registry=False):
         log.debug('DockerClient connecting to {}'.format(socket))
         self._socket = socket
-        self._client = Client(base_url=socket, timeout=300)
+        self._client = Client(base_url=socket, timeout=300, version='auto')
         self._remove_intermediate = remove_intermediate
         self._registry = registry
         self._insecure_registry = insecure_registry
