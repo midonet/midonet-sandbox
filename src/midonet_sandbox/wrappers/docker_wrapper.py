@@ -136,9 +136,10 @@ class Docker(object):
         if prefix:
             filtered = list()
             for image in images:
-                for tag in image['RepoTags']:
-                    if tag.startswith(prefix):
-                        filtered.append(image)
+                if 'RepoTags' in image and image['RepoTags'] is not None:
+                    for tag in image['RepoTags']:
+                        if tag.startswith(prefix):
+                            filtered.append(image)
 
             images = filtered
 
