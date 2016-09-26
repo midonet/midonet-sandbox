@@ -55,8 +55,5 @@ neutronliberty:
 neutronmitaka:
   image: sandbox/neutron:mitaka
 
-neutronlbaasliberty:
-  image: sandbox/neutron-lbaas:liberty
-
 jmxtrans:
   image: sandbox/jmxtrans:253
