@@ -82,11 +82,15 @@ class DockerComposer(object):
 
         with open(yml_file, 'rb') as _f_yml:
             content = _f_yml.read()
-
             for var, value in self.VARS.items():
                 content = content.replace(var, value)
 
-        temp_yml.write(content)
+            # We need to remove the provision and override sections
+            # as they are not part of the compose yml schema
+            compose_content = load(content)
+            compose_content.pop('provision', None)
+            compose_content.pop('override', None)
+            dump(compose_content, temp_yml)
         return temp_yml.name
 
     def _update_packages(self, override):

@@ -48,18 +48,28 @@ class Composer(object):
         :param no_recreate: Do not recreate containers if they exist on restart
         :return: True if the sandbox has been started, False otherwise
         """
-        message = 'Spawning {} sandbox'.format(flavour)
-        if override:
-            message += ' with override {}'.format(override)
-
-        log.info(message)
-
         if flavour not in self._assets.list_flavours():
             log.error('Cannot find flavour {}. Aborted'.format(flavour))
             return
 
         flavour_file = self._assets.get_abs_flavour_path(flavour)
+
+        # Get provision and override from flavour
+        with open(flavour_file, 'rb') as _f_yml:
+            flavour_content = load(_f_yml)
+            if 'provision' in flavour_content and provision is None:
+                provision = flavour_content['provision']
+            if 'override' in flavour_content and override is None:
+                override = flavour_content['override']
+
         override = os.path.abspath(override) if override else None
+        message = 'Spawning {} sandbox'.format(flavour)
+        if override:
+            message += ' with override {}'.format(override)
+        if provision:
+            message += ' and with provision {}'.format(provision)
+
+        log.info(message)
 
         restart = 'y'
         if not force:

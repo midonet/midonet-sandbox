@@ -305,6 +305,33 @@ Eg: The following provisioning script will create a tunnel zone and register two
     $CLI_COMMAND tunnel-zone $TZONEID add member host $HOST0_ID address $MIDOLMAN1_IP
     $CLI_COMMAND tunnel-zone $TZONEID add member host $HOST1_ID address $MIDOLMAN2_IP
 
+### Specifying override folder and provisioning scripts in the flavour yaml
+
+You can also specify the override folder and the provisioning scripts in the
+flavour yaml filed you use to start up a sandbox. For that, just add the
+relative paths starting where the `sandbox-manage` command is executed,
+somewhere in your flavour, at the same level as other service definitions
+(here's an example, it may differ in your local environment):
+
+    [...]
+    neutron:
+      extends:
+        file: $BASE/neutron.yml
+        service: neutron
+      image: sandbox/neutron:kilo
+      hostname: neutron
+      links:
+      - "keystone:keystone"
+      - "cluster:midonetapi"
+
+    provision: sandbox/provision/all-provisioning.sh
+
+    override: sandbox/override_v2
+
+These options can be overridden through the command line as explained in the
+previous sections. Now, to start a sandbox, you just need to specify the flavour
+definiton without needing to also specify the provision and override options.
+
 ### Pushing and pulling from an external registry
 
 By default, sandbox-manage pulls and pushes to the default registry in docker `index.docker.io`. If you need to interact with a different docker registry, a couple of config parameters should be added to the `sandbox.conf` file. 
