@@ -1,6 +1,9 @@
 # Base requirements for midonet-sandbox. Any other project using (e.g. midonet)
 # should install its own dependencies on top of this dependencies without
 # reinstalling any of the sandbox dependencies (to avoid version conflicts).
+#
+# NOTE: If you update these, bump the sandbox version
+#
 docker-compose==1.8.1
 dockerfile-parse==0.0.5
 docopt==0.6.2

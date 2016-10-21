@@ -9,7 +9,7 @@ import os
 
 SRC_DIR = "src"
 MODULE_NAME = "midonet_sandbox"
-__version__ = 1.0
+__version__ = 1.1
 
 def assets():
     assets_path = \
