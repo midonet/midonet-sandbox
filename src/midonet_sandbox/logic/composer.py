@@ -38,7 +38,7 @@ class Composer(object):
 
     @exception_safe(ConnectionError, False)
     def run(self, flavour, name, force=False, override=None, provision=None,
-            no_recreate=False):
+            no_recreate=False, verbose=False):
         """
         :param flavour: The flavour name
         :param name: The sandbox name
@@ -46,6 +46,7 @@ class Composer(object):
         :param override: An override path
         :param provision: A provisioning script path
         :param no_recreate: Do not recreate containers if they exist on restart
+        :param verbose: Logs the output of the provisioning script
         :return: True if the sandbox has been started, False otherwise
         """
         if flavour not in self._assets.list_flavours():
@@ -93,10 +94,18 @@ class Composer(object):
                     provisioning_env = {
                         "SANDBOX_NAME": name
                     }
+
+                    if verbose:
+                        out = None
+                        err = subprocess.STDOUT
+                    else:
+                        out = open(os.devnull, 'w')
+                        err = out
                     p = subprocess.Popen(
-                        provision, stderr=subprocess.STDOUT,
+                        provision, stdout=out, stderr=err,
                         env=dict(os.environ, **provisioning_env))
                     p.wait()
+                    log.info('Provisioning script completed')
                 else:
                     log.error(
                         'File {} does not exist or it\'s not executable'.format(
