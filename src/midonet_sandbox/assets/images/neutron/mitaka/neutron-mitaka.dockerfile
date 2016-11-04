@@ -10,6 +10,7 @@ RUN apt-get install -qy --no-install-recommends \
                             neutron-server \
                             python-neutronclient \
                             python-keystoneclient \
+                            python-midonetclient \
                             python-neutron-lbaas \
                             python-neutron-fwaas \
                             python-neutron-vpnaas
