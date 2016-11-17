@@ -16,7 +16,7 @@ ONBUILD RUN apt-get -qy update
 ONBUILD RUN apt-get install -qy --no-install-recommends midolman zkdump python-setproctitle
 
 RUN apt-get -qy update
-RUN apt-get -qy install git mz hping3 tcpdump nmap iptables telnet traceroute iputils-arping --no-install-recommends
+RUN apt-get -qy install git mz hping3 tcpdump nmap iptables telnet traceroute iputils-arping ethtool --no-install-recommends
 
 # Install Java 8
 RUN apt-get install -qy software-properties-common
