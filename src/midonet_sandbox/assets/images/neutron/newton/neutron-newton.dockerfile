@@ -20,7 +20,7 @@ RUN mv /midonet_conf/neutron_lbaas.conf /etc/neutron/neutron_lbaas.conf
 RUN mv /midonet_conf/neutron_vpnaas.conf /etc/neutron/neutron_vpnaas.conf
 
 WORKDIR /
-RUN git clone https://github.com/openstack/networking-midonet.git --depth 1 && \
+RUN git clone https://github.com/openstack/networking-midonet.git --depth 1 --branch stable/newton && \
     cd /networking-midonet && python setup.py install
 
 RUN /setup-mariadb.sh
