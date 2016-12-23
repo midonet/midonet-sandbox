@@ -1,7 +1,7 @@
 FROM ubuntu-upstart:14.04
 MAINTAINER MidoNet (http://midonet.org)
 
-RUN apt-get -q update && apt-get install -qqy git quagga iptables telnet traceroute ethtool
+RUN apt-get -q update && apt-get install -qqy git quagga iptables telnet traceroute ethtool python-scapy
 
 # Get pipework to allow arbitrary configurations on the container from the host
 # Might get included into docker-networking in the future
