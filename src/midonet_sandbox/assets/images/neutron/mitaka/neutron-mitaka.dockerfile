@@ -20,7 +20,11 @@ RUN mv /midonet_conf/neutron_lbaas.conf /etc/neutron/neutron_lbaas.conf
 RUN mv /midonet_conf/neutron_vpnaas.conf /etc/neutron/neutron_vpnaas.conf
 
 RUN apt-get install -qy --no-install-recommends git
+
 RUN git clone https://github.com/midokura/networking-midonet.git --branch fip64/mitaka --depth 1
 RUN cd networking-midonet; python setup.py install; cd ..
+
+RUN git clone http://github.com/openstack/networking-l2gw.git --branch stable/mitaka --depth 1
+RUN cd networking-l2gw; python setup.py install; cd ..
 
 RUN /setup-mariadb.sh
