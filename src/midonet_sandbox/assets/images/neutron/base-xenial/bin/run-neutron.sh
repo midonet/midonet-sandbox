@@ -8,7 +8,4 @@ if [ "${MARIADB_IN_MEM}" != "false" ]; then
     tar -C / -zxf /mariadb-data.tgz
 fi
 
-cd /var/lib/neutron
-/bin/mkdir -p /var/lock/neutron /var/log/neutron /var/lib/neutron
-/etc/init.d/neutron-server systemd-start
-
+exec /sbin/init
