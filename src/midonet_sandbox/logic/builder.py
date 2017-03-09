@@ -2,6 +2,7 @@
 #
 # @author: Antonio Sagliocco <antonio@midokura.com>, Midokura
 
+import itertools
 import logging
 
 from injector import inject, singleton
@@ -57,10 +58,15 @@ class Builder(object):
     def build_all(self, flavour, force_rebuild):
         components = self._composer.get_components_by_flavour(flavour)
         components = components.keys()
-        components = [c.replace('sandbox/', '') for c in components if 'sandbox/' in c]
-        images = [','.join(image['RepoTags']).replace('sandbox/', '') for image
-                  in self._docker.list_images('sandbox/')]
-
+        components = [unicode(c.replace('sandbox/', ''), "utf-8")
+                      for c in components if 'sandbox/' in c]
+        # RepoTags attribute may contain a list of tags
+        # (i.e. images with the same sha).
+        # Filter those from an remote repo, and keep those with only one /
+        tags = [tag.replace('sandbox/', '') for image in
+                self._docker.list_images('sandbox/')
+                for tag in image['RepoTags'] if tag.count('/') == 1]
+        images = ','.join(tag for tag in tags)
         if components:
             log.info('Building the following components: '
                      '{}'.format(', '.join(components)))
