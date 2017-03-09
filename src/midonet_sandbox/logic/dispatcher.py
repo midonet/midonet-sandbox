@@ -31,12 +31,13 @@ class Dispatcher(object):
 
     def build(self, options):
         images = options['<image>']
+        force = options['--force']
 
         for image in images:
             if ':' not in image:
                 image = '{}:master'.format(image)
 
-            if not self._builder.build(image):
+            if not self._builder.build(image, force_rebuild=force):
                 return False
         return True
 

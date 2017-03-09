@@ -27,10 +27,11 @@ class Builder(object):
         self._assets = assets
         self._composer = composer
 
-    def build(self, image):
+    def build(self, image, force_rebuild):
         """
         Build and optionally publish a docker image
         :param image: the image to build, eg "midolman:1.9"
+        :param force_rebuild: force building even if image is present
         :return:
         """
         log.info('Build started for {}'.format(image))
@@ -39,18 +40,29 @@ class Builder(object):
 
         # Build the base image first if exists
         base_image = self._assets.get_image_base(name, tag)
+        images = self._get_existing_local_tags()
         if base_image:
             base_name, base_tag = base_image.split(':')
             if base_name.startswith("sandbox/"):
-                if not self.build(base_image.replace("sandbox/", "", 1)):
-                    log.info(
-                        'Base image {} not found, skipping'.format(base_image))
-                    return False
+                base_image = base_image.replace("sandbox/", "", 1)
+                if base_image not in images or force_rebuild:
+                    if not self.build(base_image, force_rebuild):
+                        log.info('Failed to build base image {}.'.format(
+                            base_image))
+                        return False
+                else:
+                    log.info('Base image {} already exists. Skipping'.format(
+                        base_image))
 
         # Build the actual image
         try:
-            dockerfile = self._assets.get_abs_image_dockerfile(name, tag)
-            return self._docker.build(dockerfile, 'sandbox/{}'.format(image))
+            if image not in images or force_rebuild:
+                dockerfile = self._assets.get_abs_image_dockerfile(name, tag)
+                return self._docker.build(dockerfile,
+                                          'sandbox/{}'.format(image))
+            else:
+                log.info('Image {} already exists. Skipping.'.format(image))
+                return True
         except ImageNotFound:
             log.error('Image {} not found, build aborted'.format(image))
             return False
@@ -60,20 +72,15 @@ class Builder(object):
         components = components.keys()
         components = [unicode(c.replace('sandbox/', ''), "utf-8")
                       for c in components if 'sandbox/' in c]
-        # RepoTags attribute may contain a list of tags
-        # (i.e. images with the same sha).
-        # Filter those from an remote repo, and keep those with only one /
-        tags = [tag.replace('sandbox/', '') for image in
-                self._docker.list_images('sandbox/')
-                for tag in image['RepoTags'] if tag.count('/') == 1]
-        images = ','.join(tag for tag in tags)
+
+        images = self._get_existing_local_tags()
         if components:
             log.info('Building the following components: '
                      '{}'.format(', '.join(components)))
 
             for image in components:
                 if (image not in images) or force_rebuild:
-                    if not self.build(image):
+                    if not self.build(image, force_rebuild):
                         return False
                 else:
                     log.info('{} image already exists. Skipping'.format(image))
@@ -119,3 +126,12 @@ class Builder(object):
                 if not self.push(image):
                     return False
         return True
+
+    def _get_existing_local_tags(self):
+        # RepoTags attribute may contain a list of tags
+        # (i.e. images with the same sha).
+        # Filter those from an remote repo, and keep those with only one /
+        tags = [tag.replace('sandbox/', '') for image in
+                self._docker.list_images('sandbox/')
+                for tag in image['RepoTags'] if tag.count('/') == 1]
+        return ','.join(tag for tag in tags)

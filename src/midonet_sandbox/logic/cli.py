@@ -15,7 +15,7 @@ from midonet_sandbox.utils import configure_logging
 command_line = """Midonet Sandbox Manager
 
 Usage:
-    sandbox-manage [options] build <image>...
+    sandbox-manage [options] build <image>... [--force]
     sandbox-manage [options] build-all <flavour> [--force]
     sandbox-manage [options] pull <image>...
     sandbox-manage [options] pull-all <flavour>
