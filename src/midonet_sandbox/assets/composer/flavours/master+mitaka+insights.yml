@@ -1,0 +1,103 @@
+# This flavour contains two insights containers not available on
+# the artifactory (yet) and not available on this project. To build
+# them you must:
+#
+# - Clone: http://github.com/midokura/insights-cloud
+# - Then:
+# 1: You have docker-compose client with version 3 compatibility
+#    (1.11 onwards):
+#   - $ docker-compose build
+# 2: You don't have docker-compose client with versino 3 compatibility:
+#   - $ cd backend/sandbox && docker build -t midonet-insights:backend
+#   - $ cd -
+#   - $ cd gateway/sandbox && docker build -t midonet-insights:gateway
+#
+zookeeper1:
+  extends:
+    file: $BASE/zookeeper.yml
+    service: zookeeper
+  image: sandbox/zookeeper:3.4.5
+  hostname: zookeeper1
+  volumes:
+  - /zoo/conf/
+  environment:
+  - ZOO_ID=1
+
+zookeeper2:
+  extends:
+    file: $BASE/zookeeper.yml
+    service: zookeeper
+  image: sandbox/zookeeper:3.4.5
+  hostname: zookeeper2
+  environment:
+  - ZOO_ID=2
+  volumes_from:
+  - zookeeper1
+
+zookeeper3:
+  extends:
+    file: $BASE/zookeeper.yml
+    service: zookeeper
+  image: sandbox/zookeeper:3.4.5
+  hostname: zookeeper3
+  environment:
+  - ZOO_ID=3
+  volumes_from:
+  - zookeeper1
+  links:
+  - zookeeper1:zk1
+  - zookeeper2:zk2
+
+midolman:
+  extends:
+    file: $BASE/midolman.yml
+    service: midolman
+  image: sandbox/midolman:master
+  hostname: midolman
+  links:
+  - "zookeeper1:zk1"
+  - "zookeeper2:zk2"
+  - "zookeeper3:zk3"
+
+keystone:
+  extends:
+    file: $BASE/keystone.yml
+    service: keystone
+  image: sandbox/keystone:mitaka
+  hostname: keystone
+
+neutron:
+  extends:
+    file: $BASE/neutron.yml
+    service: neutron
+  image: sandbox/neutron:mitaka
+  hostname: neutron
+  links:
+  - "keystone:keystone"
+  - "cluster:midonetapi"
+
+cloud_insights:
+  image: midonet-insights:backend
+  hostname: cluster_insights
+  ports:
+    - "80:80"
+    - "443:443"
+
+cluster:
+  environment:
+    ZK_ENDPOINTS: "zookeeper1:2181,zookeeper2:2181,zookeeper3:2181"
+    KEYSTONE_HOST: keystone
+    KEYSTONE_PORT: 35357
+    KEYSTONE_ADMIN_TOKEN: ADMIN
+    KEYSTONE_TENANT_NAME: admin
+    KEYSTONE_VERSION: 3
+  hostname: cluster
+  links:
+    - zookeeper1
+    - zookeeper2
+    - zookeeper3
+    - keystone
+    - cloud_insights
+  image: midonet-insights:gateway
+  ports:
+    - "8181:8181"
