@@ -7,6 +7,9 @@ zookeeper:
 cassandra:
   image: sandbox/cassandra:2.0
 
+cassandra30:
+  image: sandbox/cassandra:3.0
+
 midolman:
   image: sandbox/midolman:master
 
