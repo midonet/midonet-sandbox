@@ -24,7 +24,7 @@ RUN apt-get install -qy --no-install-recommends git
 RUN git clone https://github.com/midokura/networking-midonet.git --branch fip64/mitaka --depth 1
 RUN cd networking-midonet; python setup.py install; cd ..
 
-RUN git clone http://github.com/openstack/networking-l2gw.git --branch stable/mitaka --depth 1
+RUN git clone http://github.com/openstack/networking-l2gw.git --branch mitaka-eol --depth 1
 RUN cd networking-l2gw; python setup.py install; cd ..
 
 RUN /setup-mariadb.sh

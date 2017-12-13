@@ -6,6 +6,7 @@ import logging
 import subprocess
 
 import os
+import re
 from docker import Client
 from requests.exceptions import ConnectionError
 from midonet_sandbox.utils import exception_safe
@@ -36,19 +37,20 @@ class Docker(object):
         response = self._client.build(path=os.path.dirname(dockerfile),
                                       tag=image, pull=False,
                                       rm=self._remove_intermediate,
-                                      dockerfile=os.path.basename(dockerfile))
+                                      dockerfile=os.path.basename(dockerfile),
+                                      stream=True)
 
-        last_line = None
+        # Check for ensure success after building
+        success_pattern = re.compile(r'Successfully built ([0-9a-f]+)')
         for line in response:
             eval_line = eval(line)
             if 'stream' in eval_line:
                 print(eval_line['stream']),
                 last_line = eval_line['stream']
-        # Check for ensure success after building
-        if 'Successfully built' not in last_line:
-            log.error('Error building the image {}.'.format(image))
-            return False
-        return True
+                if success_pattern.match(last_line):
+                    return True
+        log.error('Error building the image {}.'.format(image))
+        return False
 
     @exception_safe(ConnectionError, None)
     def pull(self, image):
