@@ -2,8 +2,7 @@ FROM ubuntu-upstart:14.04
 MAINTAINER MidoNet (http://midonet.org)
 
 ONBUILD ADD conf/midonet.list /etc/apt/sources.list.d/midonet.list
-ONBUILD RUN curl -k http://repo.midonet.org/packages.midokura.key | apt-key add -
-ONBUILD RUN curl -k http://builds.midonet.org/midorepo.key | apt-key add -
+ONBUILD RUN curl -k http://artifactory.bcn.midokura.com/artifactory/api/gpg/key/public | apt-key add -
 ONBUILD RUN apt-get -q update && apt-get install -qqy tomcat7 midonet-api python-midonetclient
 
 # install midolman to get access to mn-conf, but keep the agent itself disabled

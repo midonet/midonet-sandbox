@@ -1,2 +1,2 @@
-deb http://builds.midonet.org/midonet-5.6 testing main
-deb http://builds.midonet.org/misc stable main
+deb http://artifactory.bcn.midokura.com/artifactory/midonet-5.6 testing main
+deb http://artifactory.bcn.midokura.com/artifactory/misc-deb stable main

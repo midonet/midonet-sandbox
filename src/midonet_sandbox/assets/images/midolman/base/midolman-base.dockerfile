@@ -10,8 +10,7 @@ ADD bin/run-midolman-host.sh /run-midolman-host.sh
 ADD src/fake_snort.c /tmp/fake_snort.c
 RUN touch /etc/init.d/vpp
 
-ONBUILD RUN curl -k http://repo.midonet.org/packages.midokura.key | apt-key add -
-ONBUILD RUN curl -k http://builds.midonet.org/midorepo.key | apt-key add -
+ONBUILD RUN curl -k http://artifactory.bcn.midokura.com/artifactory/api/gpg/key/public | apt-key add -
 ONBUILD RUN apt-get -qy update
 ONBUILD RUN apt-get install -qy --no-install-recommends midolman zkdump python-setproctitle
 
