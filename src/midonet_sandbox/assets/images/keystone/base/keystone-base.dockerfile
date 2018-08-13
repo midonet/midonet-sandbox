@@ -13,5 +13,5 @@ EXPOSE 5000 35357
 
 ADD bin/run-keystone.sh /run-keystone.sh
 ADD conf/keystonerc /keystonerc
-
+ONBUILD RUN keystone-manage db_sync
 CMD ["/run-keystone.sh"]
